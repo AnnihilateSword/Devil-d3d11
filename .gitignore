@@ -1,0 +1,14 @@
+.vs
+CMakeFiles
+x64
+Debug
+Release
+*.dir
+
+*.vcxproj
+*.filters
+*.user
+*.sln
+CMakeCache.txt
+*.cmake
+*.cso

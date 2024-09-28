@@ -1,0 +1,97 @@
+cmake_minimum_required(VERSION 3.20)
+
+project(Engine LANGUAGES CXX)
+
+if (WIN32)
+	# when a static library is generated, the Windows platform adds this code to output lib.
+	set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+endif()
+
+# recursively find all.cpp and.h in the src directory.
+file(GLOB_RECURSE EngineSrc src/*.cpp src/*.h)
+
+
+
+# **********************************************
+# Include Shader Files && Set Compile Properties
+# **********************************************
+file(GLOB HLSL_FILES ${CMAKE_CURRENT_LIST_DIR}/shaders/hlsl/*.hlsl ${CMAKE_CURRENT_LIST_DIR}/shaders/hlsl/*.hlsl)
+
+foreach(HLSL_FILE ${HLSL_FILES})
+
+    get_filename_component(HLSL_FDIR ${HLSL_FILE} DIRECTORY)
+    get_filename_component(HLSL_FBASENAME_WE ${HLSL_FILE} NAME_WE)
+    string(CONCAT HLSL_FNAME_WE ${HLSL_FDIR} / ${HLSL_FBASENAME_WE})
+
+    string(LENGTH ${HLSL_FBASENAME_WE} LEN_FNAME_WE)
+    math(EXPR LEN_FNAME_WE "${LEN_FNAME_WE}-2")
+    string(SUBSTRING ${HLSL_FBASENAME_WE} ${LEN_FNAME_WE} 2 ENTRY_POINT)
+    string(TOLOWER ${ENTRY_POINT} SHADER_TYPE)
+
+    if ("${SHADER_TYPE}" STREQUAL "vs") 
+        set(SHADER_TYPE "Vertex")
+    elseif("${SHADER_TYPE}" STREQUAL "hs") 
+        set(SHADER_TYPE "Hull")
+    elseif("${SHADER_TYPE}" STREQUAL "ds") 
+        set(SHADER_TYPE "Domain")
+    elseif("${SHADER_TYPE}" STREQUAL "gs") 
+        set(SHADER_TYPE "Geometry")
+    elseif("${SHADER_TYPE}" STREQUAL "ps")
+        set(SHADER_TYPE "Pixel")
+    elseif("${SHADER_TYPE}" STREQUAL "cs")
+        set(SHADER_TYPE "Compute")
+    endif()
+
+    set_source_files_properties(${HLSL_FILE} PROPERTIES
+                                VS_SHADER_OBJECT_FILE_NAME ${PROJECT_BINARY_DIR}/shaders/hlsl/${HLSL_FBASENAME_WE}.cso
+                                VS_SHADER_TYPE ${SHADER_TYPE}
+                                VS_SHADER_MODEL 5.0
+                                VS_SHADER_ENTRYPOINT ${ENTRY_POINT}
+                                VS_SHADER_DISABLE_OPTIMIZATIONS $<$<CONFIG:Debug>:true>
+                                VS_SHADER_ENABLE_DEBUG $<$<CONFIG:Debug>:true>)
+endforeach()
+
+
+
+# ************************
+# generate static library.
+# ************************
+add_library(${PROJECT_NAME} STATIC ${EngineSrc} ${HLSL_FILES})
+
+
+
+# compile setting.
+if (MSVC)
+	target_compile_options(${PROJECT_NAME} PRIVATE
+		$<$<CONFIG:Release>:/MT>
+		$<$<CONFIG:Debug>:/MTd>
+	)
+endif()
+
+# add predefined.
+if (WIN32)
+	add_compile_definitions(
+		# ...
+	)
+endif()
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+	# ...
+)
+
+# set precompile headers.
+target_precompile_headers(${PROJECT_NAME} PRIVATE 
+	${CMAKE_CURRENT_LIST_DIR}/src/EnginePCH.h
+)
+
+# include library.
+target_include_directories(${PROJECT_NAME} PRIVATE
+	${CMAKE_CURRENT_LIST_DIR}/src
+	# ...
+)
+
+# add subdirectory.
+# add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/)
+
+# If it is a project, the project is referenced first, if not, the library is linked.
+# target_link_libraries(${PROJECT_NAME} ...)
