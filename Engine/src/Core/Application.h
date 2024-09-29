@@ -32,6 +32,8 @@ namespace Devil
 		/** Event Handle */
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
+		bool OnWindowEnterSizeMove(WindowEnterSizeMoveEvent& e);
+		bool OnWindowExitSizeMove(WindowExitSizeMoveEvent& e);
 		bool OnKeyPressed(KeyPressedEvent& e);
 		bool OnKeyReleased(KeyReleasedEvent& e);
 		bool OnMouseButtonPressed(MouseButtonPressedEvent& e);
@@ -42,8 +44,8 @@ namespace Devil
 	protected:
 		std::unique_ptr<Window> m_Window{};
 
-		bool m_Running{ true };
-		bool m_Minimized{ false };
+		bool m_bRunning{ true };
+		bool m_bMinimized{ false };
 
 
 		// friend
@@ -51,7 +53,11 @@ namespace Devil
 
 	protected:
 		// Timer
-		DevilTimer timer;
+		DevilTimer m_Timer;
+
+	private:
+		bool m_bResizing{ false };
+		bool m_bAppPaused{ false };
 	};
 
 

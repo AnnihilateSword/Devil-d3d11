@@ -32,8 +32,7 @@ public:
 			XMFLOAT3(-2.2, 0.0f, 6.0f), XMFLOAT3(0.0, 0.0f, 0.0f), XMFLOAT3(1.0, 1.0f, 1.0f)
 		);
 
-
-		m_Window->GetRenderer().SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, 9.0f / 16.0f, 0.5f, 40.0f));
+		m_Window->GetRenderer().SetProjection(DirectX::XMMatrixPerspectiveFovLH(45.0f, (float)m_Window->GetWidth() / (float)m_Window->GetHeight(), 0.5f, 40.0f));
 	}
 
 	virtual ~ProvingGround()
@@ -43,13 +42,13 @@ public:
 	virtual void DoFrame() override
 	{
 		// [Get Delta Time]
-		float deltaTime = timer.DeltaTime();
+		float deltaTime = m_Timer.DeltaTime();
 
 
 		/******************************/
 		/** Update && Draw && Present */
 		/******************************/
-		m_Window->GetRenderer().ClearBuffer(0.0f, 0.0f, 0.0f);
+		m_Window->GetRenderer().BeginFrame(0.0f, 0.0f, 0.0f);
 		
 		m_Plane->Update(deltaTime);
 		m_Plane->Draw(m_Window->GetRenderer());

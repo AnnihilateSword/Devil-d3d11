@@ -132,7 +132,7 @@ namespace Devil
         /******************/
         /** Init Renderer */
         /******************/
-        m_Renderer = std::make_unique<D3D11Renderer>(m_Hwnd);
+        m_Renderer = std::make_unique<D3D11Renderer>(m_Hwnd, m_Data.Width, m_Data.Height);
 	}
 
 
@@ -202,7 +202,8 @@ namespace Devil
         {
             Window* pWnd = reinterpret_cast<Window*>(GetWindowLongPtrW(hwnd, GWLP_USERDATA));
             WindowCloseEvent event;
-            pWnd->GetEventCallback()(event);
+            if (pWnd->GetEventCallback())
+                pWnd->GetEventCallback()(event);
 
             /** Post Quit Message */
             PostQuitMessage(0);
@@ -210,12 +211,48 @@ namespace Devil
             return 0;
         }
 
+        case WM_SIZE:
+        {
+            if (wparam == SIZE_MINIMIZED)
+                return 0;
+            
+            unsigned int resizeWidth = (UINT)LOWORD(lparam);
+            unsigned int resizeHeight = (UINT)HIWORD(lparam);
+
+            Window* pWnd = reinterpret_cast<Window*>(GetWindowLongPtrW(hwnd, GWLP_USERDATA));
+            WindowResizeEvent event(resizeWidth, resizeHeight);
+            if (pWnd->GetEventCallback())
+                pWnd->GetEventCallback()(event);
+
+            return 0;
+        }
+
+        // WM_EXITSIZEMOVE is sent when the user grabs the resize bars.
+        case WM_ENTERSIZEMOVE:
+        {
+            Window* pWnd = reinterpret_cast<Window*>(GetWindowLongPtrW(hwnd, GWLP_USERDATA));
+            WindowEnterSizeMoveEvent event;
+            if (pWnd->GetEventCallback())
+                pWnd->GetEventCallback()(event);
+        }
+
+            // WM_EXITSIZEMOVE is sent when the user releases the resize bars.
+            // Here we reset everything based on the new window dimensions.
+        case WM_EXITSIZEMOVE:
+        {
+            Window* pWnd = reinterpret_cast<Window*>(GetWindowLongPtrW(hwnd, GWLP_USERDATA));
+            WindowExitSizeMoveEvent event;
+            if (pWnd->GetEventCallback())
+                pWnd->GetEventCallback()(event);
+        }
+
         /** Keyboard Msg */
         case WM_KEYDOWN:
         {
             Window* pWnd = reinterpret_cast<Window*>(GetWindowLongPtrW(hwnd, GWLP_USERDATA));
             KeyPressedEvent event(wparam, lparam);
-            pWnd->GetEventCallback()(event);
+            if (pWnd->GetEventCallback())
+                pWnd->GetEventCallback()(event);
 
             return 0;
         }
@@ -224,7 +261,8 @@ namespace Devil
         {
             Window * pWnd = reinterpret_cast<Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
             KeyReleasedEvent event(wparam);
-            pWnd->GetEventCallback()(event);
+            if (pWnd->GetEventCallback())
+                pWnd->GetEventCallback()(event);
 
             return 0;
         }
@@ -236,7 +274,8 @@ namespace Devil
         {
             Window* pWnd = reinterpret_cast<Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
             MouseButtonPressedEvent event(wparam);
-            pWnd->GetEventCallback()(event);
+            if (pWnd->GetEventCallback())
+                pWnd->GetEventCallback()(event);
 
             return 0;
         }
@@ -247,7 +286,8 @@ namespace Devil
         {
             Window* pWnd = reinterpret_cast<Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
             MouseButtonReleasedEvent event(wparam);
-            pWnd->GetEventCallback()(event);
+            if (pWnd->GetEventCallback())
+                pWnd->GetEventCallback()(event);
 
             return 0;
         }
@@ -256,7 +296,8 @@ namespace Devil
         {
             Window* pWnd = reinterpret_cast<Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
             MouseScrolledEvent event(LOWORD(lparam), HIWORD(lparam));
-            pWnd->GetEventCallback()(event);
+            if (pWnd->GetEventCallback())
+                pWnd->GetEventCallback()(event);
 
             return 0;
         }
@@ -265,7 +306,8 @@ namespace Devil
         {
             Window* pWnd = reinterpret_cast<Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
             MouseMovedEvent event(LOWORD(lparam), HIWORD(lparam));
-            pWnd->GetEventCallback()(event);
+            if (pWnd->GetEventCallback())
+                pWnd->GetEventCallback()(event);
 
             return 0;
         }

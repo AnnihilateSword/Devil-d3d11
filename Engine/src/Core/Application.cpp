@@ -14,6 +14,8 @@ namespace Devil
 
 		dispatcher.Dispatch<WindowCloseEvent>(std::bind(&Application::OnWindowClose, this, std::placeholders::_1));
 		dispatcher.Dispatch<WindowResizeEvent>(std::bind(&Application::OnWindowResize, this, std::placeholders::_1));
+		dispatcher.Dispatch<WindowEnterSizeMoveEvent>(std::bind(&Application::OnWindowEnterSizeMove, this, std::placeholders::_1));
+		dispatcher.Dispatch<WindowExitSizeMoveEvent>(std::bind(&Application::OnWindowExitSizeMove, this, std::placeholders::_1));
 
 		dispatcher.Dispatch<KeyPressedEvent>(std::bind(&Application::OnKeyPressed, this, std::placeholders::_1));
 		dispatcher.Dispatch<KeyReleasedEvent>(std::bind(&Application::OnKeyReleased, this, std::placeholders::_1));
@@ -27,19 +29,29 @@ namespace Devil
 	int Application::Run()
 	{
 		// Init Timer
-		timer.Reset();
+		m_Timer.Reset();
 
-		while (m_Running)
+		while (m_bRunning)
 		{
 			if (const std::optional<int> ecode = m_Window->OnUpdate())
 			{
 				return *ecode;
 			}
+			else
+			{
+				// Timer Tick
+				m_Timer.Tick();
 
-			// Timer Tick
-			timer.Tick();
+				if (!m_bAppPaused)
+				{
+					DoFrame();
+				}
+				else
+				{
+					Sleep(100);
+				}
+			}
 
-			DoFrame();
 		}
 
 		return 0;
@@ -55,12 +67,40 @@ namespace Devil
 	// *************************
 	bool Application::OnWindowClose(WindowCloseEvent& e)
 	{
-		m_Running = false;
+		m_bRunning = false;
 		return true;
 	}
 
 	bool Application::OnWindowResize(WindowResizeEvent& e)
 	{
+		if (!m_bResizing)
+		{
+			m_Window->SetWidth(e.GetWidth());
+			m_Window->SetHeight(e.GetHeight());
+			m_Window->GetRenderer().SetClientWidth(e.GetWidth());
+			m_Window->GetRenderer().SetClientHeight(e.GetHeight());
+
+			m_Window->GetRenderer().SetProjection(DirectX::XMMatrixPerspectiveFovLH(45.0f, (float)m_Window->GetWidth() / (float)m_Window->GetHeight(), 0.5f, 40.0f));
+
+			m_Window->GetRenderer().OnResize();
+		}
+
+		return true;
+	}
+
+	bool Application::OnWindowEnterSizeMove(WindowEnterSizeMoveEvent& e)
+	{
+		m_bAppPaused = true;
+		m_bResizing = true;
+		m_Timer.Stop();
+		return true;
+	}
+
+	bool Application::OnWindowExitSizeMove(WindowExitSizeMoveEvent& e)
+	{
+		m_bAppPaused = false;
+		m_bResizing = false;
+		m_Timer.Start();
 		return true;
 	}
 

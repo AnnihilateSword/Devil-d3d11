@@ -37,6 +37,24 @@ namespace Devil
 		unsigned int m_Width{}, m_Height{};
 	};
 
+	class WindowEnterSizeMoveEvent : public Event
+	{
+	public:
+		WindowEnterSizeMoveEvent() {}
+
+		EVENT_CLASS_TYPE(WindowEnterSizeMove)
+		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+	};
+
+	class WindowExitSizeMoveEvent : public Event
+	{
+	public:
+		WindowExitSizeMoveEvent() {}
+
+		EVENT_CLASS_TYPE(WindowExitSizeMove)
+		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+	};
+
 	class AppTickEvent : public Event
 	{
 	public:

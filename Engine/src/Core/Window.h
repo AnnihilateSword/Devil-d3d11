@@ -83,6 +83,8 @@ namespace Devil
 		/** Getter and Setter */
 		inline virtual void SetEventCallback(const EventCallbackFn& callback) { m_Data.EventCallback = callback; }
 		inline virtual EventCallbackFn& GetEventCallback() { return m_Data.EventCallback; }
+		virtual void SetWidth(unsigned int width) { m_Data.Width = width; }
+		virtual void SetHeight(unsigned int height) { m_Data.Height = height; }
 		virtual void SetVSync(bool bEnable);
 		virtual void SetFullScreen(bool bFullScreen);
 

@@ -17,18 +17,34 @@ namespace Devil
 	{
 		friend class D3D11Bindable;
 	public:
-		D3D11Renderer(HWND hwnd);
+		D3D11Renderer(HWND hwnd, unsigned int clientWidth, unsigned int clientHeight);
 		virtual ~D3D11Renderer() = default;
 
 	public:
+		void BeginFrame(float red, float green, float blue) noexcept;
 		void EndFrame();
-		void ClearBuffer(float red, float green, float blue) noexcept;
 		void DrawIndexed(unsigned int count) noexcept;
+
+		void OnResize();
+
+	public:
+		/** Setter and Getter */
 		void SetProjection(DirectX::FXMMATRIX proj) noexcept;
+		inline void SetClientWidth(unsigned int width)  noexcept { m_ClientWidth = width; }
+		inline void SetClientHeight(unsigned int height) noexcept { m_ClientHeight = height; }
+
 		DirectX::FXMMATRIX GetProjection() const noexcept;
 
 	private:
 		HWND m_Hwnd{};
+
+		/** Properties */
+		unsigned int m_ClientWidth{};
+		unsigned int m_ClientHeight{};
+
+		// msaa
+		bool m_bEnable4xMsaa{ true };
+		unsigned int m_4xMsaaQuality{};
 
 		/** D3D11 Resources */
 		template<class T>
