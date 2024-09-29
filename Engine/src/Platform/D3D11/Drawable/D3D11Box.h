@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core/Core.h"
 #include "D3D11DrawableBase.h"
 
 namespace Devil
@@ -15,11 +16,16 @@ namespace Devil
 		void Update(float deltaTime) noexcept override;
 
 		/** Getter and Setter */
-		void SetPosition(DirectX::XMFLOAT3& position) noexcept { m_Position = position; };
-		void SetRotation(DirectX::XMFLOAT3& rotation) noexcept { m_Rotation = rotation; };
-		void SetScale(DirectX::XMFLOAT3& scale) noexcept { m_Scale = scale; };
+		void SetPosition(DirectX::XMFLOAT3& position) noexcept { m_Position = position; }
+		// Rotation in d3d is in radians!!!
+		void SetRotationDegree(DirectX::XMFLOAT3& rotationDegree) noexcept 
+		{
+			m_Rotation = DirectX::XMFLOAT3(DegreeToRadian(rotationDegree.x), DegreeToRadian(rotationDegree.y), DegreeToRadian(rotationDegree.z));
+		}
+		void SetRotationRadian(DirectX::XMFLOAT3& rotationRadian) noexcept { m_Rotation = rotationRadian; }
+		void SetScale(DirectX::XMFLOAT3& scale) noexcept { m_Scale = scale; }
 
-		/** World Transform */
+		/** Object World Transform */
 		DirectX::XMMATRIX GetTransformXM() const noexcept override;
 
 	private:

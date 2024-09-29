@@ -128,7 +128,7 @@ namespace Devil
 		}
 
 		/** Present */
-		m_SwapChain->Present(0, 0);
+		m_SwapChain->Present(1, 0);
 	}
 
 	void D3D11Renderer::DrawIndexed(unsigned int count) noexcept
@@ -198,13 +198,23 @@ namespace Devil
 		m_DeviceContext->RSSetViewports(1u, &m_ScreenViewport);
 	}
 
-	void D3D11Renderer::SetProjection(FXMMATRIX proj) noexcept
+	void D3D11Renderer::SetProjection(XMMATRIX proj) noexcept
 	{
 		m_Projection = proj;
 	}
 
-	FXMMATRIX D3D11Renderer::GetProjection() const noexcept
+	void D3D11Renderer::SetCameraMatrix(DirectX::XMMATRIX camera) noexcept
+	{
+		m_CameraMatrix = camera;
+	}
+
+	DirectX::XMMATRIX D3D11Renderer::GetProjection() const noexcept
 	{
 		return m_Projection;
+	}
+
+	DirectX::XMMATRIX D3D11Renderer::GetCameraMatrix() const noexcept
+	{
+		return m_CameraMatrix;
 	}
 }

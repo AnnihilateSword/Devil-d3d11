@@ -7,6 +7,7 @@
 #include "Events/MouseEvent.h"
 #include "DevilTimer.h"
 #include "ImGui/ImGuiManager.h"
+#include "Camera/Camera.h"
 
 
 int WINAPI::WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int nCmdShow);
@@ -44,6 +45,7 @@ namespace Devil
 
 	protected:
 		std::unique_ptr<Window> m_Window{};
+		std::unique_ptr<Camera> m_Camera{};
 
 		bool m_bRunning{ true };
 		bool m_bMinimized{ false };

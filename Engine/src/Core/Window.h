@@ -14,8 +14,8 @@ namespace Devil
 	struct WindowProps
 	{
 		WindowProps(char* title = "Devil Engine",
-			unsigned int width = 800,
-			unsigned int height = 450)
+			unsigned int width = 1280,
+			unsigned int height = 720)
 			: Title(title), Width(width), Height(height) {}
 
 		char* Title{};

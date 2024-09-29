@@ -2,6 +2,8 @@
 
 #include "D3D11TransformCbuf.h"
 
+using namespace DirectX;
+
 namespace Devil
 {
 	D3D11TransformCbuf::D3D11TransformCbuf(D3D11Renderer& renderer, const D3D11Drawable& parent)
@@ -16,7 +18,10 @@ namespace Devil
 	void D3D11TransformCbuf::Bind(D3D11Renderer& renderer) noexcept
 	{
 		s_VCbuf->Update(renderer,
-			DirectX::XMMatrixTranspose(m_Parent.GetTransformXM() * renderer.GetProjection())
+			// mvp
+			XMMatrixTranspose(m_Parent.GetTransformXM() *
+			renderer.GetCameraMatrix() *
+			renderer.GetProjection())
 		);
 		s_VCbuf->Bind(renderer);
 	}

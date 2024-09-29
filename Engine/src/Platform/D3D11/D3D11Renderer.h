@@ -29,11 +29,13 @@ namespace Devil
 
 	public:
 		/** Setter and Getter */
-		void SetProjection(DirectX::FXMMATRIX proj) noexcept;
+		void SetProjection(DirectX::XMMATRIX proj) noexcept;
+		void SetCameraMatrix(DirectX::XMMATRIX camera) noexcept;
 		inline void SetClientWidth(unsigned int width)  noexcept { m_ClientWidth = width; }
 		inline void SetClientHeight(unsigned int height) noexcept { m_ClientHeight = height; }
 
-		DirectX::FXMMATRIX GetProjection() const noexcept;
+		DirectX::XMMATRIX GetProjection() const noexcept;
+		DirectX::XMMATRIX GetCameraMatrix() const noexcept;
 
 	private:
 		HWND m_Hwnd{};
@@ -71,5 +73,6 @@ namespace Devil
 
 		/** DirectX Math */
 		DirectX::XMMATRIX m_Projection{};
+		DirectX::XMMATRIX m_CameraMatrix{};
 	};
 }
