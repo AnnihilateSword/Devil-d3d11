@@ -2,6 +2,10 @@
 
 #include "D3D11Renderer.h"
 
+#include <Vendor/ImGui/imgui.h>
+#include <Vendor/ImGui/imgui_impl_win32.h>
+#include <Vendor/ImGui/imgui_impl_dx11.h>
+
 using namespace DirectX;
 
 namespace Devil
@@ -81,20 +85,50 @@ namespace Devil
 		dxgiFactory1->CreateSwapChain(m_Device.Get(), &sd, &m_SwapChain);
 
 		OnResize();
+
+
+		/** ImGui Layer */
+		// Setup Renderer backends
+		ImGui_ImplDX11_Init(m_Device.Get(), m_DeviceContext.Get());
 	}
 
-	void D3D11Renderer::BeginFrame(float red, float green, float blue) noexcept
+	void D3D11Renderer::BeginFrame(float red, float green, float blue)
 	{
-		m_DeviceContext->OMSetRenderTargets(1u, m_RenderTargetView.GetAddressOf(), m_DepthStencilView.Get());
+		/** ImGui Layer */
+		// Start the Dear ImGui frame
+		ImGui_ImplDX11_NewFrame();
+		ImGui_ImplWin32_NewFrame();
+		ImGui::NewFrame();
+
 
 		float color[4]{ red, green, blue, 1.0f };
 		m_DeviceContext->ClearRenderTargetView(m_RenderTargetView.Get(), color);
 		m_DeviceContext->ClearDepthStencilView(m_DepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
+
+
+		// ************************************************************************************************************
+		// We must reset the RenderTarget at this location, otherwise when we drag the docking imgui out of the window, 
+		// the d3d render content will not render to the desired rendertargetview ( imgui-docking note )
+		// ************************************************************************************************************
+		m_DeviceContext->OMSetRenderTargets(1u, m_RenderTargetView.GetAddressOf(), m_DepthStencilView.Get());
 	}
 
 	void D3D11Renderer::EndFrame()
 	{
-		m_SwapChain->Present(1, 0);
+		/** ImGui Layer */
+		// Rendering
+		ImGui::Render();
+		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+		// Update and Render additional Platform Windows
+		if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
+		}
+
+		/** Present */
+		m_SwapChain->Present(0, 0);
 	}
 
 	void D3D11Renderer::DrawIndexed(unsigned int count) noexcept

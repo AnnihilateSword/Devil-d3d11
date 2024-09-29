@@ -4,3 +4,15 @@
 
 // DirectX 中是从左往右乘比如 mvp
 // HLSL 中是从右往左乘比如 pvm
+
+
+
+
+/**********/
+/** ImGui */
+/**********/
+
+# Docking 分支
+
+1. 第二个参数可能会影响 win32 窗口外的消息捕获
+PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)

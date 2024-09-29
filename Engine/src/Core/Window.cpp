@@ -7,6 +7,10 @@
 #include "Events/MouseEvent.h"
 #include "../resource.h"
 
+#include <Vendor/ImGui/imgui_impl_win32.h>
+
+// Forward declare message handler from imgui_impl_win32.cpp
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 namespace Devil
 {
@@ -65,7 +69,7 @@ namespace Devil
         cx.cbClsExtra = 0;
         cx.cbSize = sizeof(cx);
         cx.cbWndExtra = 0;
-        cx.hbrBackground = nullptr;
+        cx.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);  // Avoid initial white screen
         cx.hCursor = nullptr;
         cx.hIcon = static_cast<HICON>(LoadImage(GetInstance(), MAKEINTRESOURCE(IDI_ICON1), IMAGE_ICON, 256, 256, 0));
         cx.hIconSm = cx.hIcon;
@@ -128,6 +132,9 @@ namespace Devil
         ShowWindow(m_Hwnd, SW_SHOW);
 
 
+        /** ImGui Layer */
+        // Setup Platform backends
+        ImGui_ImplWin32_Init(m_Hwnd);
 
         /******************/
         /** Init Renderer */
@@ -144,7 +151,13 @@ namespace Devil
 
     std::optional<int> Window::OnUpdate()
 	{
-        if (PeekMessage(&msg, m_Hwnd, 0, 0, PM_REMOVE))
+        // ********************************************************************************************
+        // Note here that when docking with imgui, 
+        // you can also capture messages if you want to drag an imgui window outside of a win32 window
+        // The second parameter needs to be set to nullptr!!! 
+        // if set to m_Hwnd command to capture the message of the current win32 window
+        // ********************************************************************************************
+        if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
         {
             if (msg.message == WM_QUIT)
             {
@@ -196,6 +209,12 @@ namespace Devil
 
     LRESULT Window::HandleMsg(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) noexcept
     {
+        /** ImGui WndProc Handler */
+        if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam))
+            return true;
+
+        const auto io = ImGui::GetIO();
+
         switch (msg)
         {
         case WM_CLOSE:
@@ -249,6 +268,10 @@ namespace Devil
         /** Keyboard Msg */
         case WM_KEYDOWN:
         {
+            if (io.WantCaptureKeyboard)
+            {
+                return 0;
+            }
             Window* pWnd = reinterpret_cast<Window*>(GetWindowLongPtrW(hwnd, GWLP_USERDATA));
             KeyPressedEvent event(wparam, lparam);
             if (pWnd->GetEventCallback())
@@ -259,6 +282,10 @@ namespace Devil
 
         case WM_KEYUP:
         {
+            if (io.WantCaptureKeyboard)
+            {
+                return 0;
+            }
             Window * pWnd = reinterpret_cast<Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
             KeyReleasedEvent event(wparam);
             if (pWnd->GetEventCallback())
@@ -272,6 +299,10 @@ namespace Devil
         case WM_MBUTTONDOWN:
         case WM_RBUTTONDOWN:
         {
+            if (io.WantCaptureMouse)
+            {
+                return 0;
+            }
             Window* pWnd = reinterpret_cast<Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
             MouseButtonPressedEvent event(wparam);
             if (pWnd->GetEventCallback())
@@ -284,6 +315,10 @@ namespace Devil
         case WM_MBUTTONUP:
         case WM_RBUTTONUP:
         {
+            if (io.WantCaptureMouse)
+            {
+                return 0;
+            }
             Window* pWnd = reinterpret_cast<Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
             MouseButtonReleasedEvent event(wparam);
             if (pWnd->GetEventCallback())
@@ -294,6 +329,10 @@ namespace Devil
 
         case WM_MOUSEWHEEL:
         {
+            if (io.WantCaptureMouse)
+            {
+                return 0;
+            }
             Window* pWnd = reinterpret_cast<Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
             MouseScrolledEvent event(LOWORD(lparam), HIWORD(lparam));
             if (pWnd->GetEventCallback())
@@ -304,6 +343,10 @@ namespace Devil
 
         case WM_MOUSEMOVE:
         {
+            if (io.WantCaptureMouse)
+            {
+                return 0;
+            }
             Window* pWnd = reinterpret_cast<Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
             MouseMovedEvent event(LOWORD(lparam), HIWORD(lparam));
             if (pWnd->GetEventCallback())
@@ -312,12 +355,20 @@ namespace Devil
             return 0;
         }
 
+        case WM_DPICHANGED:
+            if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_DpiEnableScaleViewports)
+            {
+                //const int dpi = HIWORD(wParam);
+                //printf("WM_DPICHANGED to %d (%.0f%%)\n", dpi, (float)dpi / 96.0f * 100.0f);
+                const RECT* suggested_rect = (RECT*)lparam;
+                ::SetWindowPos(hwnd, nullptr, suggested_rect->left, suggested_rect->top, suggested_rect->right - suggested_rect->left, suggested_rect->bottom - suggested_rect->top, SWP_NOZORDER | SWP_NOACTIVATE);
+            }
+            return 0;
+        }
+
 
         /** Default Window Proc */
-        default:
-            return DefWindowProc(hwnd, msg, wparam, lparam);
-        }
-        return 0;
+        return DefWindowProc(hwnd, msg, wparam, lparam);
     }
 
 

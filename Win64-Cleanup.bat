@@ -35,6 +35,7 @@ for /r %%i in (*.sln) do ( del "%%i" )
 for /r %%i in (CMakeCache.txt) do ( del "%%i" )
 for /r %%i in (*.cmake) do ( del "%%i" )
 for /r %%i in (*.cso) do ( del "%%i" )
+for /r %%i in (imgui.ini) do ( del "%%i" )
 
 
 REM 递归删除除了 Engine 目录下其他目录下的 shaders/

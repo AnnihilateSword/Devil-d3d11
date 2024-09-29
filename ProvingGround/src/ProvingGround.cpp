@@ -4,6 +4,8 @@
 #include "Platform/D3D11/Drawable/D3D11Sphere.h"
 #include "Platform/D3D11/Drawable/D3D11Plane.h"
 
+#include <Vendor/ImGui/imgui.h>
+
 using namespace Devil;
 using namespace DirectX;
 
@@ -64,6 +66,15 @@ public:
 		m_Sphere->SetRotation(XMFLOAT3(pitch, yaw, 0.0f));
 		m_Sphere->Update(deltaTime);
 		m_Sphere->Draw(m_Window->GetRenderer());
+
+		/** ImGui Layer */
+		if (ImGui::Begin("ImGui Test"))
+		{
+			ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+			ImGui::Text("Debug: ( %f, %f ), Button: %d", ImGui::GetMousePos().x, ImGui::GetMousePos().y, ImGui::IsMouseDown(0));
+		}
+		ImGui::End();
+		ImGui::ShowDemoWindow();
 
 		m_Window->GetRenderer().EndFrame();
 	}

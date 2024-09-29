@@ -21,7 +21,7 @@ namespace Devil
 		virtual ~D3D11Renderer() = default;
 
 	public:
-		void BeginFrame(float red, float green, float blue) noexcept;
+		void BeginFrame(float red, float green, float blue);
 		void EndFrame();
 		void DrawIndexed(unsigned int count) noexcept;
 

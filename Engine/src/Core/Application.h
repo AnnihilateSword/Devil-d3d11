@@ -6,6 +6,7 @@
 #include "Events/KeyEvent.h"
 #include "Events/MouseEvent.h"
 #include "DevilTimer.h"
+#include "ImGui/ImGuiManager.h"
 
 
 int WINAPI::WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int nCmdShow);
@@ -54,6 +55,9 @@ namespace Devil
 	protected:
 		// Timer
 		DevilTimer m_Timer;
+
+		// ImGui Manager
+		ImGuiManager m_ImGuiManager;
 
 	private:
 		bool m_bResizing{ false };
