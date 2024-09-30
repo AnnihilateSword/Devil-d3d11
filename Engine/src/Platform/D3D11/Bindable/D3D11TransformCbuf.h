@@ -15,8 +15,16 @@ namespace Devil
 		virtual void Bind(D3D11Renderer& renderer) noexcept override;
 
 	private:
+		struct Transforms
+		{
+			DirectX::XMMATRIX model;
+			DirectX::XMMATRIX view;
+			DirectX::XMMATRIX proj;
+		};
+
+	private:
 		// Use the same ConstantBuffer for the same object
-		static std::unique_ptr<D3D11VSConstantBuffer<DirectX::XMMATRIX>> s_VCbuf;
+		static std::unique_ptr<D3D11VSConstantBuffer<D3D11TransformCbuf::Transforms>> s_VCbuf;
 		const D3D11Drawable& m_Parent;
 	};
 }

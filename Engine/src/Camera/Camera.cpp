@@ -10,7 +10,7 @@ using namespace DirectX;
 namespace Devil
 {
 	Camera::Camera()
-		: m_Distance{ 10.0f }, m_Theta{ DegreeToRadian(0) }, m_Phi{ DegreeToRadian(0) },
+		: m_Distance{ 5.0f }, m_Theta{ DegreeToRadian(0) }, m_Phi{ DegreeToRadian(0) },
 		m_Pitch{ DegreeToRadian(0) }, m_Yaw{ DegreeToRadian(0) }, m_Roll{ DegreeToRadian(0) }
 	{}
 
@@ -31,7 +31,7 @@ namespace Devil
 			XMMatrixRotationRollPitchYaw(DegreeToRadian(m_Pitch), -DegreeToRadian(m_Yaw), DegreeToRadian(m_Roll));
 	}
 
-	void Camera::SpawnControllWindow()
+	void Camera::SpawnImGuiControlWindow()
 	{
 		//m_Theta += 0.001f;
 		if (ImGui::Begin("Camera Control Window"))

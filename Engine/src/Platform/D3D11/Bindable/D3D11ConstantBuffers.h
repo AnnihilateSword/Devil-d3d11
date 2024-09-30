@@ -8,7 +8,8 @@ namespace Devil
 	class D3D11ConstantBuffers : public D3D11Bindable
 	{
 	public:
-		D3D11ConstantBuffers(D3D11Renderer& renderer, const T& consts)
+		D3D11ConstantBuffers(D3D11Renderer& renderer, const T& consts, unsigned int slot = 0u)
+			: m_Slot{ slot }
 		{
 			D3D11_BUFFER_DESC bd{};
 			bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -25,7 +26,8 @@ namespace Devil
 			GetDevice(renderer)->CreateBuffer(&bd, &sd, &m_ConstantBuffer);
 		}
 
-		D3D11ConstantBuffers(D3D11Renderer& renderer)
+		D3D11ConstantBuffers(D3D11Renderer& renderer, unsigned int slot = 0u)
+			: m_Slot{ slot }
 		{
 			D3D11_BUFFER_DESC bd{};
 			bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -53,6 +55,7 @@ namespace Devil
 		
 	protected:
 		Microsoft::WRL::ComPtr<ID3D11Buffer> m_ConstantBuffer{};
+		unsigned int m_Slot{};
 	};
 
 
@@ -64,12 +67,13 @@ namespace Devil
 	class D3D11VSConstantBuffer : public D3D11ConstantBuffers<T>
 	{
 		using D3D11ConstantBuffers<T>::m_ConstantBuffer;
+		using D3D11ConstantBuffers<T>::m_Slot;
 		using D3D11Bindable::GetDeviceContext;
 	public:
 		using D3D11ConstantBuffers<T>::D3D11ConstantBuffers;
 		virtual void Bind(D3D11Renderer& renderer) noexcept override
 		{
-			GetDeviceContext(renderer)->VSSetConstantBuffers(0u, 1u, m_ConstantBuffer.GetAddressOf());
+			GetDeviceContext(renderer)->VSSetConstantBuffers(m_Slot, 1u, m_ConstantBuffer.GetAddressOf());
 		}
 	};
 
@@ -82,12 +86,13 @@ namespace Devil
 	class D3D11PSConstantBuffer : public D3D11ConstantBuffers<T>
 	{
 		using D3D11ConstantBuffers<T>::m_ConstantBuffer;
+		using D3D11ConstantBuffers<T>::m_Slot;
 		using D3D11Bindable::GetDeviceContext;
 	public:
 		using D3D11ConstantBuffers<T>::D3D11ConstantBuffers;
 		virtual void Bind(D3D11Renderer& renderer) noexcept override
 		{
-			GetDeviceContext(renderer)->PSSetConstantBuffers(0u, 1u, m_ConstantBuffer.GetAddressOf());
+			GetDeviceContext(renderer)->PSSetConstantBuffers(m_Slot, 1u, m_ConstantBuffer.GetAddressOf());
 		}
 	};
 }

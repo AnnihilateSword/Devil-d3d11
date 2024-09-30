@@ -11,20 +11,23 @@ namespace Devil
 	{
 		if (s_VCbuf == nullptr)
 		{
-			s_VCbuf = std::make_unique<D3D11VSConstantBuffer<DirectX::XMMATRIX>>(renderer);
+			s_VCbuf = std::make_unique<D3D11VSConstantBuffer<Transforms>>(renderer);
 		}
 	}
 
 	void D3D11TransformCbuf::Bind(D3D11Renderer& renderer) noexcept
 	{
-		s_VCbuf->Update(renderer,
+		const auto model = m_Parent.GetTransformXM();
+		const Transforms tf =
+		{
 			// mvp
-			XMMatrixTranspose(m_Parent.GetTransformXM() *
-			renderer.GetCameraMatrix() *
-			renderer.GetProjection())
-		);
+			XMMatrixTranspose(model),
+			XMMatrixTranspose(renderer.GetCameraMatrix()),
+			XMMatrixTranspose(renderer.GetProjection())
+		};
+		s_VCbuf->Update(renderer, tf);
 		s_VCbuf->Bind(renderer);
 	}
 
-	std::unique_ptr<D3D11VSConstantBuffer<DirectX::XMMATRIX>> D3D11TransformCbuf::s_VCbuf{};
+	std::unique_ptr<D3D11VSConstantBuffer<D3D11TransformCbuf::Transforms>> D3D11TransformCbuf::s_VCbuf{};
 }

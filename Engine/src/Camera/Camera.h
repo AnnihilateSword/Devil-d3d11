@@ -12,10 +12,13 @@ namespace Devil
 		virtual ~Camera() = default;
 
 	public:
+		/** Setter and Getter */
 		DirectX::XMMATRIX GetViewMatrix() const noexcept;
 
+		void SetDistanceToOrigin(float distance) noexcept { m_Distance = distance; }
+
 		// imgui window
-		void SpawnControllWindow();
+		void SpawnImGuiControlWindow();
 		void Reset();
 
 	private:

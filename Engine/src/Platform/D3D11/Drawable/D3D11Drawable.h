@@ -3,6 +3,7 @@
 #include <DirectXMath.h>
 
 #include "Platform/D3D11/D3D11Renderer.h"
+#include "Platform/D3D11/Bindable/D3D11IndexBuffer.h"
 
 class D3D11Bindable;
 
@@ -24,15 +25,15 @@ namespace Devil
 		virtual void Update(float deltaTime) noexcept = 0;
 		virtual DirectX::XMMATRIX GetTransformXM() const noexcept = 0;
 
-	protected:
+	public:
 		void AddBind(std::unique_ptr<D3D11Bindable> bind) noexcept;
-		void AddIndexBuffer(std::unique_ptr<D3D11Bindable> indexBuffer) noexcept;
+		void AddIndexBuffer(std::unique_ptr<D3D11IndexBuffer> indexBuffer) noexcept;
 
 	private:
 		virtual const std::vector<std::unique_ptr<D3D11Bindable>>& GetStaticBinds() const noexcept = 0;
 
 	private:
-		const class D3D11IndexBuffer* m_IndexBuffer{ nullptr };
+		const D3D11IndexBuffer* m_IndexBuffer{ nullptr };
 		std::vector<std::unique_ptr<D3D11Bindable>> m_Binds{};
 	};
 }

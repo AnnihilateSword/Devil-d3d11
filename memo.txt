@@ -19,3 +19,30 @@
 
 1. 第二个参数可能会影响 win32 窗口外的消息捕获
 PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)
+
+
+/*********/
+/** HLSL */
+/*********/
+
+1. 	在绑定常量缓冲区时：
+	GPU 端使用 float3 会自动填充一个 float 保证 是 16字节的倍数
+	而 CPU 端不会，所以需要手动填充，不然就会有问题
+	【解决方法1】：( 在变量前添加 alignas(16)，编译器会为我们加上这些间隔 )
+		struct PointLightCBuf
+		{
+			alignas(16) DirectX::XMFLOAT3 pos;
+			alignas(16) DirectX::XMFLOAT3 materialColor;
+			alignas(16) DirectX::XMFLOAT3 ambient;
+			alignas(16) DirectX::XMFLOAT3 diffuseColor;
+			float diffuseIntensity;
+			float attConst;
+			float attLin;
+			float attQuad;
+		};
+	【解决方法2】：手动添加 float 去对齐
+		struct Test
+		{
+			DirectX::XMFLOAT3 pos;
+			float padding;
+		};

@@ -1,7 +1,6 @@
 #include "EnginePCH.h"
 
 #include "D3D11Drawable.h"
-#include "../Bindable/D3D11IndexBuffer.h"
 
 namespace Devil
 {
@@ -24,9 +23,10 @@ namespace Devil
 		m_Binds.push_back(std::move(bind));
 	}
 
-	void D3D11Drawable::AddIndexBuffer(std::unique_ptr<D3D11Bindable> indexBuffer) noexcept
+	void D3D11Drawable::AddIndexBuffer(std::unique_ptr<D3D11IndexBuffer> indexBuffer) noexcept
 	{
 		assert("Attempting to add index buffer a second time" && m_IndexBuffer == nullptr);
+		m_IndexBuffer = indexBuffer.get();
 		m_Binds.push_back(std::move(indexBuffer));
 	}
 }
