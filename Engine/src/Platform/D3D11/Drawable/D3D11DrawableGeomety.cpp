@@ -13,7 +13,7 @@ namespace Devil
 	D3D11DrawableGeometry_PhongPosNormalTex::D3D11DrawableGeometry_PhongPosNormalTex(D3D11Renderer& renderer, DrawableGeometryType drawableGeometryType,
 		DirectX::XMFLOAT3& position, DirectX::XMFLOAT3& rotation, DirectX::XMFLOAT3& scale, std::string textureFilename)
 		: DObject(position, rotation, scale),
-		m_MaterialColor{ 1.0f, 1.0f, 1.0f },
+		m_MaterialConst{ { 1.0f, 1.0f, 1.0f }, 0.8f, 64.0f },
 		m_DrawableGeometryType{ drawableGeometryType }
 	{
 		// select geometry type
@@ -68,35 +68,29 @@ namespace Devil
 		}*/
 
 		// object transform bind is not static.
-		// add bind vs constant buffer
+		// add bind (vs) constant buffer
 		AddBind(std::make_unique<D3D11TransformCbuf>(renderer, *this));
 
 
-		// *************
-		// (b0) is Light
-		// *************
-		// add bind ps constant buffer (b1)
-		SetMaterialColor(renderer, m_MaterialColor);
+		// ******************
+		// (b0) is Light Data
+		// ******************
+		// add bind (ps) constant buffer (b1)
+		SetMaterialConst(renderer, m_MaterialConst);
 	}
 
 	void D3D11DrawableGeometry_PhongPosNormalTex::Update(float deltaTime) noexcept
 	{
 	}
 
-	void D3D11DrawableGeometry_PhongPosNormalTex::SetMaterialColor(D3D11Renderer& renderer, DirectX::XMFLOAT3& color) noexcept
+	void D3D11DrawableGeometry_PhongPosNormalTex::SetMaterialConst(D3D11Renderer& renderer, MaterialConst& materialConst) noexcept
 	{
-		m_MaterialColor = color;
-
+		/******************************/
 		/** Update PS Constant Buffer */
-		struct ConstantBuffer
-		{
-			XMFLOAT3 color;
-			float padding;
-		};
-		ConstantBuffer colorConst;
-		colorConst.color = m_MaterialColor;
+		/******************************/
+		m_MaterialConst = materialConst;
 
-		AddBind(std::make_unique<D3D11PSConstantBuffer<ConstantBuffer>>(renderer, colorConst, 1u));
+		AddBind(std::make_unique<D3D11PSConstantBuffer<MaterialConst>>(renderer, m_MaterialConst, 1u));
 	}
 
 	void D3D11DrawableGeometry_PhongPosNormalTex::SetTexture(D3D11Renderer& renderer, std::string textureFilename)

@@ -8,7 +8,7 @@ using namespace DirectX;
 
 namespace Devil
 {
-	PointLight::PointLight(D3D11Renderer& renderer, DrawableGeometryType drawableType,
+	PointLight::PointLight(D3D11Renderer& renderer, XMFLOAT3& viewPos, DrawableGeometryType drawableType,
 		XMFLOAT3& position, XMFLOAT3& rotation, XMFLOAT3& scale)
 		: m_Mesh{ renderer, drawableType, position, rotation, scale }
 	{
@@ -20,9 +20,10 @@ namespace Devil
 		   1.0f,
 		   0.045f,
 		   0.0075f,
+		   viewPos
 		};
 	}
-
+	
 	void PointLight::Draw(D3D11Renderer& renderer) noexcept
 	{
 		SetPosition(m_CbData.pos);
@@ -36,7 +37,7 @@ namespace Devil
 		m_Mesh.Update(deltaTime);
 	}
 
-	void PointLight::Reset(D3D11Renderer& renderer) noexcept
+	void PointLight::Reset(D3D11Renderer& renderer, XMFLOAT3& viewPos) noexcept
 	{
 		m_CbData = {
 		   { 0.0f, 0.0f, 0.0f },
@@ -46,13 +47,14 @@ namespace Devil
 		   1.0f,
 		   0.045f,
 		   0.0075f,
+		   viewPos
 		};
 
 		m_Position = m_CbData.pos;
 		m_Mesh.SetMaterialColor(renderer, m_CbData.diffuseColor);
 	}
 
-	void PointLight::SpawnImGuiControlWindow(D3D11Renderer& renderer) noexcept
+	void PointLight::SpawnImGuiControlWindow(D3D11Renderer& renderer, XMFLOAT3& viewPos) noexcept
 	{
 		if (ImGui::Begin("Light"))
 		{
@@ -73,7 +75,7 @@ namespace Devil
 
 			if (ImGui::Button("Reset"))
 			{
-				Reset(renderer);
+				Reset(renderer, viewPos);
 			}
 		}
 		ImGui::End();

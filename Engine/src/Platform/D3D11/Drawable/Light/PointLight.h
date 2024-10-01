@@ -14,7 +14,7 @@ namespace Devil
 	class PointLight : DObject
 	{
 	public:
-		PointLight(D3D11Renderer& renderer, DrawableGeometryType drawableType = DrawableGeometryType::Sphere,
+		PointLight(D3D11Renderer& renderer, DirectX::XMFLOAT3& viewPos, DrawableGeometryType drawableType = DrawableGeometryType::Sphere,
 			DirectX::XMFLOAT3& position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f),
 			DirectX::XMFLOAT3& rotation = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f),
 			DirectX::XMFLOAT3& scale = DirectX::XMFLOAT3(0.12f, 0.12f, 0.12f));
@@ -23,8 +23,8 @@ namespace Devil
 		void Draw(D3D11Renderer& renderer) noexcept;
 		void Update(D3D11Renderer& renderer, float deltaTime) noexcept;
 
-		void Reset(D3D11Renderer& renderer) noexcept;
-		void SpawnImGuiControlWindow(D3D11Renderer& renderer) noexcept;
+		void Reset(D3D11Renderer& renderer, DirectX::XMFLOAT3& viewPos) noexcept;
+		void SpawnImGuiControlWindow(D3D11Renderer& renderer, DirectX::XMFLOAT3& viewPos) noexcept;
 
 	public:
 		/** Bind light source information to other objects that can be drawn */
@@ -48,6 +48,7 @@ namespace Devil
 			float attConst;
 			float attLin;
 			float attQuad;
+			alignas(16) DirectX::XMFLOAT3 viewPos;
 		};
 
 	private:

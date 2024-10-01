@@ -20,6 +20,7 @@ namespace Devil
 			DirectX::XMMATRIX model;
 			DirectX::XMMATRIX view;
 			DirectX::XMMATRIX proj;
+			DirectX::XMMATRIX modelInvTranspose;
 		};
 
 	private:

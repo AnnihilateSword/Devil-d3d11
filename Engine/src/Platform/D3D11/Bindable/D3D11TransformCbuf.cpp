@@ -1,6 +1,7 @@
 #include "EnginePCH.h"
 
 #include "D3D11TransformCbuf.h"
+#include "Utility/DevilLibrary.h"
 
 using namespace DirectX;
 
@@ -23,7 +24,8 @@ namespace Devil
 			// mvp
 			XMMatrixTranspose(model),
 			XMMatrixTranspose(renderer.GetCameraMatrix()),
-			XMMatrixTranspose(renderer.GetProjection())
+			XMMatrixTranspose(renderer.GetProjection()),
+			XMMatrixTranspose(InverseTranspose(model))  // normal vector transform
 		};
 		s_VCbuf->Update(renderer, tf);
 		s_VCbuf->Bind(renderer);

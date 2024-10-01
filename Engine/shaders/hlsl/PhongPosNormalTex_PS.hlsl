@@ -7,11 +7,14 @@ cbuffer LightCBuf : register(b0)
     float attConst;
     float attLin;
     float attQuad;
+    float3 viewPos;
 };
 
 cbuffer ObjectCBuf : register(b1)
 {
     float3 materialColor;
+    float specularIntensity;
+    float specularPower;
 }
 
 Texture2D shaderTexture : register(t0);
@@ -20,8 +23,8 @@ SamplerState SampleType : register(s0);
 struct VertexPosHWNormalTex
 {
     float4 position : SV_POSITION;
-    float3 worldPos : POSITION; // 在世界中的位置
-    float3 normalW : NORMAL; // 法向量在世界中的方向
+    float3 worldPos : POSITION; // The position of the vertex in world space
+    float3 normalW : NORMAL;    // The direction of the normal vector in the world
     float2 tex : TEXCOORD;
 };
 
@@ -32,17 +35,22 @@ float4 PS(VertexPosHWNormalTex pIn) : SV_Target
     // fragment to light vector data
     const float3 vToL = lightPos - pIn.worldPos;
     const float distToL = length(vToL);
-    const float3 dirToL = vToL / distToL;
+    const float3 dirToL = normalize(vToL);
     // diffuse attenuation
     const float att = 1.0f / (attConst + attLin * distToL + attQuad * (distToL * distToL));
     // disffuse intensity
-    const float3 diffuse = diffuseColor * diffuseIntensity * att * max(0.0f, dot(dirToL, pIn.normalW));
+    const float3 diffuse = att * diffuseColor * diffuseIntensity * max(0.0f, dot(dirToL, pIn.normalW));
 
+    // specular
+    const float3 viewDir = normalize(viewPos - pIn.worldPos);
+    const float3 halfwayDir = normalize(dirToL + viewDir);
+    const float3 specular = att * specularIntensity * pow(max(0.0f, dot(pIn.normalW, halfwayDir)), specularPower);
+    
     // tex color
     float4 texColor = shaderTexture.Sample(SampleType, pIn.tex);
     
     // final color
-    color = float4(saturate((diffuse + ambient) * materialColor), 1.0f) * texColor;
+    color = float4(saturate((ambient + diffuse + specular) * materialColor), 1.0f) * texColor;
     
     //return color;
     return color;

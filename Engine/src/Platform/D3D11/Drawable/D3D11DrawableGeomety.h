@@ -20,6 +20,15 @@ namespace Devil
 	class D3D11DrawableGeometry_PhongPosNormalTex : public D3D11DrawableBase<D3D11DrawableGeometry_PhongPosNormalTex>, public DObject
 	{
 	public:
+		/** PS Const Buffer */
+		struct MaterialConst
+		{
+			alignas(16) DirectX::XMFLOAT3 color;
+			float specularIntensity{ 0.6f };
+			float specularPower{ 32 };
+			float padding[2];
+		};
+	public:
 		D3D11DrawableGeometry_PhongPosNormalTex(D3D11Renderer& renderer, DrawableGeometryType drawableGeometryType = DrawableGeometryType::Box,
 			DirectX::XMFLOAT3& position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f),
 			DirectX::XMFLOAT3& rotation = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f),
@@ -30,10 +39,10 @@ namespace Devil
 		void Update(float deltaTime) noexcept override;
 
 		/** Getter and Setter */
-		void SetMaterialColor(D3D11Renderer& renderer, DirectX::XMFLOAT3& color) noexcept;
+		void SetMaterialConst(D3D11Renderer& renderer, MaterialConst& materialConst) noexcept;
 		void SetTexture(D3D11Renderer& renderer, std::string textureFilename);
 
-		DirectX::XMFLOAT3& GetMaterialColor() noexcept { return m_MaterialColor; };
+		MaterialConst& GetMaterialConst() noexcept { return m_MaterialConst; };
 
 		/** World Transform */
 		DirectX::XMMATRIX GetTransformXM() const noexcept override;
@@ -43,7 +52,7 @@ namespace Devil
 		Geometry::MeshData<VertexPosNormalTex, unsigned int> m_MeshData{};
 
 		// properties
-		DirectX::XMFLOAT3 m_MaterialColor{};
+		MaterialConst m_MaterialConst{};
 	};
 
 

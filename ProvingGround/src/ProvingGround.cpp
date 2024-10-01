@@ -2,6 +2,7 @@
 
 #include <Platform/D3D11/Drawable/D3D11DrawableGeomety.h>
 #include <Platform/D3D11/Drawable/Light/PointLight.h>
+#include <Camera/Camera.h>
 
 #include <Vendor/ImGui/imgui.h>
 
@@ -22,7 +23,7 @@ public:
 		m_Window->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
 		/** Init Camera */
 		m_Camera = std::make_unique<Camera>();
-		m_Camera->SetDistanceToOrigin(10.0f);
+		m_Camera->SetPosition(XMFLOAT3(0.0f, 0.0f, -8.0f));
 
 
 		/** Init Entity */
@@ -36,7 +37,7 @@ public:
 		m_Sphere->SetTexture(m_Window->GetRenderer(), "./content/textures/brickwall.jpg");
 
 		/** Init Light */
-		m_PointLight = std::make_unique<PointLight>(m_Window->GetRenderer());
+		m_PointLight = std::make_unique<PointLight>(m_Window->GetRenderer(), m_Camera->GetPosition());
 		m_PointLight->SetPosition(XMFLOAT3(0.0f, 1.0f, -4.0f));
 
 		m_Window->GetRenderer().SetProjection(DirectX::XMMatrixPerspectiveFovLH(45.0f, 
@@ -92,7 +93,7 @@ public:
 		// camera imgui controll window.
 		m_Camera->SpawnImGuiControlWindow();
 		// light imgui controll window.
-		m_PointLight->SpawnImGuiControlWindow(m_Window->GetRenderer());
+		m_PointLight->SpawnImGuiControlWindow(m_Window->GetRenderer(), m_Camera->GetPosition());
 
 		m_Window->GetRenderer().EndFrame();
 	}

@@ -25,6 +25,8 @@ PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)
 /** HLSL */
 /*********/
 
+alignas(16)
+// 一定要注意字节对齐，不然就不能正确传到 GPU，可以使用 RenderDoc 调试
 1. 	在绑定常量缓冲区时：
 	GPU 端使用 float3 会自动填充一个 float 保证 是 16字节的倍数
 	而 CPU 端不会，所以需要手动填充，不然就会有问题
