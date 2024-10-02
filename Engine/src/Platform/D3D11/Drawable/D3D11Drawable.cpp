@@ -14,6 +14,10 @@ namespace Devil
 		{
 			b->Bind(renderer);
 		}
+		for (auto& b : m_BindsCleanupFrame)
+		{
+			b->Bind(renderer);
+		}
 		renderer.DrawIndexed(m_IndexBuffer->GetCount());
 	}
 
@@ -28,5 +32,20 @@ namespace Devil
 		assert("Attempting to add index buffer a second time" && m_IndexBuffer == nullptr);
 		m_IndexBuffer = indexBuffer.get();
 		m_Binds.push_back(std::move(indexBuffer));
+	}
+
+	void D3D11Drawable::AddBindAndCleanupFrame(std::unique_ptr<D3D11Bindable> bind) noexcept
+	{
+		m_BindsCleanupFrame.push_back(std::move(bind));
+	}
+
+	void D3D11Drawable::CleanupFrameBinds() noexcept
+	{
+		for (auto& bind : m_BindsCleanupFrame)
+		{
+			auto rawPtr = bind.release();
+			delete rawPtr;
+		}
+		m_BindsCleanupFrame.clear();
 	}
 }

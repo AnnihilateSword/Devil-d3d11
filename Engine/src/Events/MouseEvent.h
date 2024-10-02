@@ -54,8 +54,8 @@ namespace Devil
 	class MouseMovedEvent : public Event
 	{
 	public:
-		MouseMovedEvent(float x, float y)
-			:m_MouseX(x), m_MouseY(y) {}
+		MouseMovedEvent(float x, float y, WPARAM wparam)
+			:m_MouseX(x), m_MouseY(y), m_WParam(wparam) {}
 
 		virtual std::string ToString() const override
 		{
@@ -70,9 +70,11 @@ namespace Devil
 	public:
 		inline float GetX() const { return m_MouseX; }
 		inline float GetY() const { return m_MouseY; }
+		inline WPARAM GetWParam() const { return m_WParam; }
 
 	private:
 		float m_MouseX{}, m_MouseY{};
+		WPARAM m_WParam{};
 	};
 
 	class MouseScrolledEvent : public Event

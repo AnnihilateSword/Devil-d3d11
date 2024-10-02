@@ -32,16 +32,18 @@ namespace Devil
 
 
 		/** Event Handle */
-		bool OnWindowClose(WindowCloseEvent& e);
-		bool OnWindowResize(WindowResizeEvent& e);
-		bool OnWindowEnterSizeMove(WindowEnterSizeMoveEvent& e);
-		bool OnWindowExitSizeMove(WindowExitSizeMoveEvent& e);
-		bool OnKeyPressed(KeyPressedEvent& e);
-		bool OnKeyReleased(KeyReleasedEvent& e);
-		bool OnMouseButtonPressed(MouseButtonPressedEvent& e);
-		bool OnMouseButtonReleased(MouseButtonReleasedEvent& e);
-		bool OnMouseScrollerd(MouseScrolledEvent& e);
-		bool OnMouseMoved(MouseMovedEvent& e);
+		virtual bool OnWindowClose(WindowCloseEvent& e);
+		virtual bool OnWindowActivate(WindowActivateEvent& e);
+		virtual bool OnWindowResize(WindowResizeEvent& e);
+		virtual bool OnWindowEnterSizeMove(WindowEnterSizeMoveEvent& e);
+		virtual bool OnWindowExitSizeMove(WindowExitSizeMoveEvent& e);
+		virtual bool OnKeyPressed(KeyPressedEvent& e);
+		virtual bool OnKeyReleased(KeyReleasedEvent& e);
+		virtual bool OnMouseButtonPressed(MouseButtonPressedEvent& e);
+		virtual bool OnMouseButtonReleased(MouseButtonReleasedEvent& e);
+		virtual bool OnMouseScrollerd(MouseScrolledEvent& e);
+		virtual bool OnMouseMoved(MouseMovedEvent& e);
+		virtual bool OnWindowRawInput(WindowRawInputEvent& e);
 
 	protected:
 		std::unique_ptr<Window> m_Window{};
@@ -62,7 +64,6 @@ namespace Devil
 		ImGuiManager m_ImGuiManager;
 
 	private:
-		bool m_bResizing{ false };
 		bool m_bAppPaused{ false };
 	};
 

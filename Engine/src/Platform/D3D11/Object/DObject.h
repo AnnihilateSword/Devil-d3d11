@@ -2,6 +2,8 @@
 
 #include <DirectXMath.h>
 
+#include "Core/Core.h"
+
 namespace Devil
 {
 	class DObject
@@ -12,6 +14,21 @@ namespace Devil
 			DirectX::XMFLOAT3& scale = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f))
 			: m_Position{ position }, m_Rotation{ rotation }, m_Scale{ scale }
 		{
+		}
+
+	public:
+		/** Logic Functions */
+		void Translate(DirectX::XMFLOAT3& translation)
+		{
+			DirectX::XMStoreFloat3(&translation, DirectX::XMVector3Transform(
+				DirectX::XMLoadFloat3(&translation),
+				DirectX::XMMatrixRotationRollPitchYaw(DegreeToRadian(m_Rotation.x), DegreeToRadian(m_Rotation.y), 0.0f)
+			));
+			m_Position = {
+				m_Position.x + translation.x,
+				m_Position.y + translation.y,
+				m_Position.z + translation.z
+			};
 		}
 
 	public:

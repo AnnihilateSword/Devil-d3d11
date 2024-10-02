@@ -10,6 +10,7 @@ namespace Devil
 	{
 		None = 0,
 		WindowClose, WindowResize, WindowEnterSizeMove, WindowExitSizeMove, WindowFocus, WindowLostFocus, WindowMoved,
+		WindowActivate, WindowRawInput,
 		AppTick, AppUpdate, AppRender,
 		KeyPressed, KeyReleased, KeyTyped,
 		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled,

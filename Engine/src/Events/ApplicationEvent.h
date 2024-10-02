@@ -13,6 +13,54 @@ namespace Devil
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
 
+	class WindowActivateEvent : public Event
+	{
+	public:
+		WindowActivateEvent(WPARAM wparam)
+			: m_WParam(wparam) {}
+
+		virtual std::string ToString() const override
+		{
+			std::stringstream ss;
+			ss << "[WindowActivateEvent]: " << "Window Active!!!" << std::endl;
+			return ss.str();
+		}
+
+		EVENT_CLASS_TYPE(WindowActivate)
+		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+
+	public:
+		WPARAM GetWParam() const { return m_WParam; }
+
+	private:
+		WPARAM m_WParam{};
+	};
+
+	class WindowRawInputEvent : public Event
+	{
+	public:
+		WindowRawInputEvent(LPARAM lparam, WPARAM wparam)
+			: m_LParam(lparam), m_WParam(wparam) {}
+
+		virtual std::string ToString() const override
+		{
+			std::stringstream ss;
+			ss << "[WindowRawInputEvent]: " << "WindowRawInputEvent" << std::endl;
+			return ss.str();
+		}
+
+		EVENT_CLASS_TYPE(WindowRawInput)
+		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+
+	public:
+		WPARAM GetWParam() const { return m_WParam; }
+		WPARAM GetLParam() const { return m_LParam; }
+
+	private:
+		WPARAM m_WParam{};
+		LPARAM m_LParam{};
+	};
+
 	class WindowResizeEvent : public Event
 	{
 	public:

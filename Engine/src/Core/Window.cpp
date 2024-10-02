@@ -140,6 +140,20 @@ namespace Devil
         /** Init Renderer */
         /******************/
         m_Renderer = std::make_unique<D3D11Renderer>(m_Hwnd, m_Data.Width, m_Data.Height);
+
+
+        /************************************/
+        /** Register Mouse Raw input device */
+        /************************************/
+        RAWINPUTDEVICE rid;
+        rid.usUsagePage = 0x01; // mouse page
+        rid.usUsage = 0x02;     // mouse usage
+        rid.dwFlags = 0;
+        rid.hwndTarget = nullptr;
+        if (RegisterRawInputDevices(&rid, 1, sizeof(rid)) == FALSE)
+        {
+            throw DEVIL_LAST_EXCEPT();
+        }
 	}
 
 
@@ -171,6 +185,46 @@ namespace Devil
         return {};
 	}
 
+    void Window::EnableCursor() noexcept
+    {
+        m_bCursorEnabled = true;
+        ShowCursor();
+        EnableImGuiMouse();
+        FreeCursor();
+    }
+
+    void Window::DisableCursor() noexcept
+    {
+        m_bCursorEnabled = false;
+        HideCursor();
+        DisableImGuiMouse();
+        ConfineCursor();
+    }
+
+    void Window::EnableRawInput() noexcept
+    {
+        m_bRawInputEnabled = true;
+    }
+
+    void Window::DisableRawInput() noexcept
+    {
+        m_bRawInputEnabled = false;
+    }
+
+    void Window::ShowRawInputImGuiWindow() noexcept
+    {
+        static int x{0}, y{0};
+        while (const auto d = ReadRawDelta())
+        {
+            x += d->x;
+            y += d->y;
+        }
+        if (ImGui::Begin("Raw Input"))
+        {
+            ImGui::Text("Tally: (%d,%d)", x, y);
+        }
+        ImGui::End();
+    }
 
 	void Window::SetVSync(bool bEnable)
 	{
@@ -181,6 +235,17 @@ namespace Devil
 	{
 	}
 
+
+    std::optional<Window::RawDelta> Window::ReadRawDelta() noexcept
+    {
+        if (m_RawDeltaBuffer.empty())
+        {
+            return std::nullopt;
+        }
+        const RawDelta d = m_RawDeltaBuffer.front();
+        m_RawDeltaBuffer.pop();
+        return d;
+    }
 
     LRESULT Window::HandleMsgSetup(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) noexcept
     {
@@ -217,6 +282,16 @@ namespace Devil
 
         switch (msg)
         {
+        case WM_ACTIVATE:
+        {
+            Window* pWnd = reinterpret_cast<Window*>(GetWindowLongPtrW(hwnd, GWLP_USERDATA));
+            WindowActivateEvent event(wparam);
+            if (pWnd->GetEventCallback())
+                pWnd->GetEventCallback()(event);
+
+            return 0;
+        }
+
         case WM_CLOSE:
         {
             Window* pWnd = reinterpret_cast<Window*>(GetWindowLongPtrW(hwnd, GWLP_USERDATA));
@@ -253,6 +328,8 @@ namespace Devil
             WindowEnterSizeMoveEvent event;
             if (pWnd->GetEventCallback())
                 pWnd->GetEventCallback()(event);
+
+            return 0;
         }
 
             // WM_EXITSIZEMOVE is sent when the user releases the resize bars.
@@ -263,15 +340,22 @@ namespace Devil
             WindowExitSizeMoveEvent event;
             if (pWnd->GetEventCallback())
                 pWnd->GetEventCallback()(event);
+
+            return 0;
         }
 
         /** Keyboard Msg */
+        case WM_SYSKEYDOWN:
         case WM_KEYDOWN:
         {
             if (io.WantCaptureKeyboard)
             {
                 return 0;
             }
+
+            /** Key Code State */
+            m_KeyStates[wparam] = true;
+
             Window* pWnd = reinterpret_cast<Window*>(GetWindowLongPtrW(hwnd, GWLP_USERDATA));
             KeyPressedEvent event(wparam, lparam);
             if (pWnd->GetEventCallback())
@@ -280,12 +364,17 @@ namespace Devil
             return 0;
         }
 
+        case WM_SYSKEYUP:
         case WM_KEYUP:
         {
             if (io.WantCaptureKeyboard)
             {
                 return 0;
             }
+
+            /** Key Code State */
+            m_KeyStates[wparam] = false;
+
             Window * pWnd = reinterpret_cast<Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
             KeyReleasedEvent event(wparam);
             if (pWnd->GetEventCallback())
@@ -348,12 +437,33 @@ namespace Devil
                 return 0;
             }
             Window* pWnd = reinterpret_cast<Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-            MouseMovedEvent event(LOWORD(lparam), HIWORD(lparam));
+            MouseMovedEvent event(LOWORD(lparam), HIWORD(lparam), wparam);
             if (pWnd->GetEventCallback())
                 pWnd->GetEventCallback()(event);
 
             return 0;
         }
+
+
+
+        /***********************/
+        /** RAW MOUSE MESSAGES */
+        /***********************/
+        case WM_INPUT:
+        {
+            // need Raw input Enabled!!!
+            if (!m_bRawInputEnabled)
+            {
+                return 0;
+            }
+            Window* pWnd = reinterpret_cast<Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+            WindowRawInputEvent event(lparam, wparam);
+            if (pWnd->GetEventCallback())
+                pWnd->GetEventCallback()(event);
+
+            return 0;
+        }
+
 
         case WM_DPICHANGED:
             if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_DpiEnableScaleViewports)
@@ -376,4 +486,37 @@ namespace Devil
 	{
         DestroyWindow(m_Hwnd);
 	}
+
+    void Window::ConfineCursor() noexcept
+    {
+        RECT rect{};
+        GetClientRect(m_Hwnd, &rect);
+        MapWindowPoints(m_Hwnd, nullptr, reinterpret_cast<POINT*>(&rect), 2);
+        ClipCursor(&rect);
+    }
+
+    void Window::FreeCursor() noexcept
+    {
+        ClipCursor(nullptr);
+    }
+
+    void Window::ShowCursor() noexcept
+    {
+        while (::ShowCursor(true) < 0);
+    }
+
+    void Window::HideCursor() noexcept
+    {
+        while (::ShowCursor(false) >= 0);
+    }
+
+    void Window::EnableImGuiMouse() noexcept
+    {
+        ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
+    }
+
+    void Window::DisableImGuiMouse() noexcept
+    {
+        ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouse;
+    }
 }

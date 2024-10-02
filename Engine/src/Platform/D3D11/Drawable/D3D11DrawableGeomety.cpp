@@ -114,7 +114,7 @@ namespace Devil
 	D3D11DrawableGeometry_PosColor::D3D11DrawableGeometry_PosColor(D3D11Renderer& renderer, DrawableGeometryType drawableGeometryType,
 		DirectX::XMFLOAT3& position, DirectX::XMFLOAT3& rotation, DirectX::XMFLOAT3& scale)
 		: DObject(position, rotation, scale),
-		m_MaterialColor{ 1.0f, 1.0f, 1.0f },
+		m_MaterialColor{ { 1.0f, 1.0f, 1.0f } },
 		m_DrawableGeometryType(drawableGeometryType)
 	{
 		// Check Static Bind
@@ -166,7 +166,7 @@ namespace Devil
 		// (b0) is Light
 		// *************
 		// add bind ps constant buffer (b1)
-		SetMaterialColor(renderer, m_MaterialColor);
+		SetMaterialColor(renderer, m_MaterialColor.color);
 	}
 
 	void D3D11DrawableGeometry_PosColor::Update(float deltaTime) noexcept
@@ -175,18 +175,12 @@ namespace Devil
 
 	void D3D11DrawableGeometry_PosColor::SetMaterialColor(D3D11Renderer& renderer, DirectX::XMFLOAT3& color) noexcept
 	{
-		m_MaterialColor = color;
+		m_MaterialColor.color = color;
 
 		/** Update PS Constant Buffer */
-		struct ConstantBuffer
-		{
-			XMFLOAT3 color;
-			float padding;
-		};
-		ConstantBuffer colorConst;
-		colorConst.color = m_MaterialColor;
-
-		AddBind(std::make_unique<D3D11PSConstantBuffer<ConstantBuffer>>(renderer, colorConst));
+		// Prevent memory leaks!!!
+		AddBindAndCleanupFrame(std::make_unique<D3D11PSConstantBuffer<ConstantBuffer>>(renderer, m_MaterialColor));
+		// Prevent memory leaks!!!
 	}
 
 	void D3D11DrawableGeometry_PosColor::SetTexture(D3D11Renderer& renderer, std::string textureFilename)

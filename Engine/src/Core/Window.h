@@ -67,6 +67,12 @@ namespace Devil
 		};
 
 	public:
+		struct RawDelta
+		{
+			int x, y;
+		};
+
+	public:
 		/**************************/
 		/** Constructor Functions */
 		/**************************/
@@ -79,6 +85,12 @@ namespace Devil
 		/** Logic Functions */
 		virtual std::optional<int> OnUpdate();
 
+		void EnableCursor() noexcept;
+		void DisableCursor() noexcept;
+		void EnableRawInput() noexcept;
+		void DisableRawInput() noexcept;
+
+		void ShowRawInputImGuiWindow() noexcept;
 
 		/** Getter and Setter */
 		inline virtual void SetEventCallback(const EventCallbackFn& callback) { m_Data.EventCallback = callback; }
@@ -87,14 +99,23 @@ namespace Devil
 		virtual void SetHeight(unsigned int height) { m_Data.Height = height; }
 		virtual void SetVSync(bool bEnable);
 		virtual void SetFullScreen(bool bFullScreen);
+		virtual void SetInWindow(bool bInWindow) { m_bInWindow = bInWindow; }
 
 		virtual void* GetNativeWindow() const { return m_Hwnd; }
 		virtual unsigned int GetWidth() const { return m_Data.Width; }
 		virtual unsigned int GetHeight() const { return m_Data.Height; }
 		virtual bool IsVSync() const { return m_Data.bVSync; }
 		virtual bool IsFullScreen() const { return m_Data.bFullScreen; }
+		virtual bool IsCursorEnabled() const { return m_bCursorEnabled; }
+		virtual bool IsInWindow() const { return m_bInWindow; };
+		virtual bool IsRawInputEnabled() const { return m_bRawInputEnabled; };
 
 		virtual D3D11Renderer& GetRenderer() const { return *m_Renderer; }
+
+		std::optional<RawDelta> ReadRawDelta() noexcept;
+
+		// Mouse
+		virtual bool KeyIsPressed(unsigned char keycode) const noexcept { return m_KeyStates[keycode]; }
 
 	private:
 		/** [STATIC] Member WndProc */
@@ -104,6 +125,27 @@ namespace Devil
 
 		/** Cleanup */
 		virtual void ShutDown();
+
+	public:
+		// Fixed mouse!!!
+		void ConfineCursor() noexcept;
+		// Free mouse!!!
+		void FreeCursor() noexcept;
+		void ShowCursor() noexcept;
+		void HideCursor() noexcept;
+
+	private:
+		void EnableImGuiMouse() noexcept;
+		void DisableImGuiMouse() noexcept;
+
+	public:
+		std::vector<BYTE> m_RawBuffer;
+		std::queue<RawDelta> m_RawDeltaBuffer;
+
+		// *****
+		// mouse
+		// *****
+		unsigned char m_KeyStates[256]{ 0 };
 
 	private:
 		struct WindowData
@@ -126,6 +168,12 @@ namespace Devil
 		/** Renderer */
 		/*************/
 		std::unique_ptr<D3D11Renderer> m_Renderer{ nullptr };
+
+		/** Properties */
+		// Input
+		bool m_bCursorEnabled{ true };
+		bool m_bInWindow{ false };
+		bool m_bRawInputEnabled{ false };
 	};
 
 

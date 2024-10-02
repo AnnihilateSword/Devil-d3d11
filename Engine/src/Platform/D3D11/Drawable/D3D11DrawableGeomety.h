@@ -62,6 +62,11 @@ namespace Devil
 	class D3D11DrawableGeometry_PosColor : public D3D11DrawableBase<D3D11DrawableGeometry_PosColor>, public DObject
 	{
 	public:
+		struct ConstantBuffer
+		{
+			alignas(16) DirectX::XMFLOAT3 color;
+		};
+	public:
 		D3D11DrawableGeometry_PosColor(D3D11Renderer& renderer, DrawableGeometryType drawableGeometryType = DrawableGeometryType::Box,
 			DirectX::XMFLOAT3& position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f),
 			DirectX::XMFLOAT3& rotation = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f),
@@ -74,7 +79,7 @@ namespace Devil
 		void SetMaterialColor(D3D11Renderer& renderer, DirectX::XMFLOAT3& color) noexcept;
 		void SetTexture(D3D11Renderer& renderer, std::string textureFilename);
 
-		DirectX::XMFLOAT3& GetMaterialColor() noexcept { return m_MaterialColor; };
+		ConstantBuffer& GetMaterialColor() noexcept { return m_MaterialColor; };
 
 		/** World Transform */
 		DirectX::XMMATRIX GetTransformXM() const noexcept override;
@@ -84,6 +89,6 @@ namespace Devil
 		Geometry::MeshData<VertexPosNormalTex, unsigned int> m_MeshData{};
 
 		// properties
-		DirectX::XMFLOAT3 m_MaterialColor{};
+		ConstantBuffer m_MaterialColor{};
 	};
 }

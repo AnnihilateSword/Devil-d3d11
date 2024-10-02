@@ -13,11 +13,23 @@ namespace Devil
 		: DObject(position, rotation)
 	{}
 
+	void Camera::Rotate(float pitch, float yaw)
+	{
+		m_Rotation.x = std::clamp(m_Rotation.x + pitch,
+			RadianToDegree(0.995f * -XM_PI / 2.0f), RadianToDegree(0.995f * XM_PI / 2.0f));
+		m_Rotation.y += yaw;
+	}
+
 	DirectX::XMMATRIX Camera::GetViewMatrix() const noexcept
 	{
-		XMFLOAT3 focusPostion(m_Position.x, m_Position.y, m_Position.z + 1.0f);
-		return XMMatrixLookAtLH(XMLoadFloat3(&m_Position), XMLoadFloat3(&focusPostion), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)) *
-			XMMatrixRotationRollPitchYaw(DegreeToRadian(m_Rotation.x), -DegreeToRadian(m_Rotation.y), DegreeToRadian(m_Rotation.z));
+		const XMVECTOR forwardBaseVector = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+		const auto lookVector = XMVector3Transform(forwardBaseVector,
+			XMMatrixRotationRollPitchYaw(DegreeToRadian(m_Rotation.x), DegreeToRadian(m_Rotation.y), 0.0f));
+
+		const auto cameraPosition = XMLoadFloat3(&m_Position);
+		const auto cameraTarget = cameraPosition + lookVector;
+
+		return XMMatrixLookAtLH(cameraPosition, cameraTarget, XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
 	}
 
 	void Camera::SpawnImGuiControlWindow()

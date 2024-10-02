@@ -43,7 +43,7 @@ namespace Devil
 			assert("Failed to find index buffer in static binds" && m_IndexBuffer != nullptr);
 		}
 
-	private:
+	public:
 		virtual const std::vector<std::unique_ptr<D3D11Bindable>>& GetStaticBinds() const noexcept
 		{
 			return s_StaticBinds;

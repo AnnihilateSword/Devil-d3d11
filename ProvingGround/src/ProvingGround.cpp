@@ -14,6 +14,7 @@ class ProvingGround : public Application
 {
 public:
 	ProvingGround()
+		: Application()
 	{
 		/*********/
 		/** TEST */
@@ -68,6 +69,46 @@ public:
 		float deltaTime = m_Timer.DeltaTime();
 
 
+		/****************/
+		/** Input Logic */
+		/****************/
+		// Camera Move Control
+		if (!m_Window->IsCursorEnabled())
+		{
+			if (m_Window->KeyIsPressed('W'))
+			{
+				m_Camera->Translate(XMFLOAT3(0.0f, 0.0f, m_Camera->GetMoveSpeed() * deltaTime));
+			}
+			if (m_Window->KeyIsPressed('S'))
+			{
+				m_Camera->Translate(XMFLOAT3(0.0f, 0.0f, -m_Camera->GetMoveSpeed() * deltaTime));
+			}
+			if (m_Window->KeyIsPressed('A'))
+			{
+				m_Camera->Translate(XMFLOAT3(-m_Camera->GetMoveSpeed() * deltaTime, 0.0f, 0.0f));
+			}
+			if (m_Window->KeyIsPressed('D'))
+			{
+				m_Camera->Translate(XMFLOAT3(m_Camera->GetMoveSpeed() * deltaTime, 0.0f, 0.0f));
+			}
+			if (m_Window->KeyIsPressed('E'))
+			{
+				m_Camera->Translate(XMFLOAT3(0.0f, m_Camera->GetMoveSpeed() * deltaTime, 0.0f));
+			}
+			if (m_Window->KeyIsPressed('Q'))
+			{
+				m_Camera->Translate(XMFLOAT3(0.0f, -m_Camera->GetMoveSpeed() * deltaTime, 0.0f));
+			}
+
+			// Camera View Control
+			while (const auto delta = m_Window->ReadRawDelta())
+			{
+				m_Camera->Rotate(delta->y * m_Camera->GetSensitivity() * deltaTime,
+					delta->x * m_Camera->GetSensitivity() * deltaTime);
+			}
+		}
+
+
 		/******************************/
 		/** Update && Draw && Present */
 		/******************************/
@@ -82,10 +123,17 @@ public:
 		
 		/*******************************************************/
 		/** Bind the light source to all objects in the scene. */
+		/** 咀葎俶勣耽屐厚仟高坿佚連                             */
 		/*******************************************************/
 		m_PointLight->AddBindToDrawable(m_Window->GetRenderer(), m_Plane.get(), 0u);
 		m_PointLight->AddBindToDrawable(m_Window->GetRenderer(), m_Sphere.get(), 0u);
 		m_PointLight->AddBindToDrawable(m_Window->GetRenderer(), m_Box.get(), 0u);
+		for (int i = 0; i < m_AssimpTestModel->m_MeshPtrs.size(); i++)
+		{
+			m_PointLight->AddBindToDrawable(m_Window->GetRenderer(), m_AssimpTestModel->m_MeshPtrs[i].get(), 0u);
+		}
+		// ！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
+
 
 		// Update && Draw Object
 		m_Plane->Update(deltaTime);
@@ -98,14 +146,38 @@ public:
 		m_AssimpTestModel->Draw(m_Window->GetRenderer());
 
 
+		/****************************************/
+		/** clean up                            */
+		/** 契峭坪贋亶其��効貧中議耽屐厚仟高坿斤哘 */
+		/****************************************/
+		m_Plane->CleanupFrameBinds();
+		m_Sphere->CleanupFrameBinds();
+		m_Box->CleanupFrameBinds();
+		m_PointLight->GetMesh().CleanupFrameBinds();
+		for (int i = 0; i < m_AssimpTestModel->m_MeshPtrs.size(); i++)
+		{
+			m_AssimpTestModel->m_MeshPtrs[i].get()->CleanupFrameBinds();
+		}
+		// ！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
+
+
+		// UI
 		/****************/
 		/** ImGui Layer */
 		/****************/
+		if (ImGui::Begin("Control Introductions"))
+		{
+			ImGui::Text("Left Shift + F1: Free Cursor");
+			ImGui::Text("Alt + G: Confine/Lock Cursor");
+		}
+		ImGui::End();
 		if (ImGui::Begin("Performance Profiler"))
 		{
 			ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		}
 		ImGui::End();
+		// window raw input window.
+		m_Window->ShowRawInputImGuiWindow();
 		// camera imgui controll window.
 		m_Camera->SpawnImGuiControlWindow();
 		// light imgui controll window.
@@ -115,11 +187,18 @@ public:
 	}
 
 protected:
-	// Entity
+
+	/***********/
+	/** Entity */
+	/***********/
+
+	// model
 	std::unique_ptr<Model> m_AssimpTestModel{};
-	std::unique_ptr<D3D11DrawableGeometry_BlinnPhongPosNorTex> m_Sphere{};
+	// geometry
 	std::unique_ptr<D3D11DrawableGeometry_BlinnPhongPosNorTex> m_Plane{};
+	std::unique_ptr<D3D11DrawableGeometry_BlinnPhongPosNorTex> m_Sphere{};
 	std::unique_ptr<D3D11DrawableGeometry_BlinnPhongPosNorTex> m_Box{};
+	// light
 	std::unique_ptr<PointLight> m_PointLight{};
 };
 

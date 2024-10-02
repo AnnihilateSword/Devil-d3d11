@@ -56,9 +56,11 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
+#include <queue>
 #include <map>
 #include <random>
 #include <optional>
+#include <algorithm>
 
 
 #pragma comment(lib, "d3d11.lib")

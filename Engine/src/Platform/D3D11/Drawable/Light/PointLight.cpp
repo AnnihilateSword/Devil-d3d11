@@ -15,7 +15,7 @@ namespace Devil
 		m_CbData = {
 		   position,
 		   { 0.05f, 0.05f, 0.05f },
-		   m_Mesh.GetMaterialColor(),
+		   m_Mesh.GetMaterialColor().color,
 		   1.0f,
 		   1.0f,
 		   0.045f,
@@ -83,7 +83,9 @@ namespace Devil
 
 	void PointLight::AddBindToDrawable(D3D11Renderer& renderer, D3D11Drawable* drawable, unsigned int slot) noexcept
 	{
-		drawable->AddBind(std::make_unique<D3D11PSConstantBuffer<PointLightCBuf>>(renderer, m_CbData, slot));
+		// Prevent memory leaks!!!
+		drawable->AddBindAndCleanupFrame(std::make_unique<D3D11PSConstantBuffer<PointLightCBuf>>(renderer, m_CbData, slot));
+		// Prevent memory leaks!!!
 	}
 
 	void PointLight::SetPosition(DirectX::XMFLOAT3& position) noexcept

@@ -105,7 +105,7 @@ namespace Devil
 		/** World Transform */
 		DirectX::XMMATRIX GetTransformXM() const noexcept;
 
-	private:
+	public:
 		std::unique_ptr<Node> m_Root;
 		std::vector<std::unique_ptr<Mesh>> m_MeshPtrs;
 
