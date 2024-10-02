@@ -3,6 +3,7 @@
 #include <Platform/D3D11/Drawable/D3D11DrawableGeomety.h>
 #include <Platform/D3D11/Drawable/Light/PointLight.h>
 #include <Camera/Camera.h>
+#include <ModelLoader/Model.h>
 
 #include <Vendor/ImGui/imgui.h>
 
@@ -27,21 +28,34 @@ public:
 
 
 		/** Init Entity */
-		m_Plane = std::make_unique<D3D11DrawableGeometry_PhongPosNormalTex>(m_Window->GetRenderer(), DrawableGeometryType::Plane);
-		m_Sphere = std::make_unique<D3D11DrawableGeometry_PhongPosNormalTex>(m_Window->GetRenderer(), DrawableGeometryType::Sphere);
-		m_Box = std::make_unique<D3D11DrawableGeometry_PhongPosNormalTex>(m_Window->GetRenderer(), DrawableGeometryType::Box);
+		m_Plane = std::make_unique<D3D11DrawableGeometry_BlinnPhongPosNorTex>(m_Window->GetRenderer(), DrawableGeometryType::Plane);
+		m_Sphere = std::make_unique<D3D11DrawableGeometry_BlinnPhongPosNorTex>(m_Window->GetRenderer(), DrawableGeometryType::Sphere);
+		m_Box = std::make_unique<D3D11DrawableGeometry_BlinnPhongPosNorTex>(m_Window->GetRenderer(), DrawableGeometryType::Box);
 		m_Plane->SetPosition(XMFLOAT3(0.0f, -5.0f, 0.0f));
+		m_Plane->SetScale(XMFLOAT3(2.0f, 1.0f, 2.0f));
 		m_Sphere->SetPosition(XMFLOAT3(3.0f, 0.0f, 0.0f));
 		m_Box->SetPosition(XMFLOAT3(-3.0f, 0.0f, 0.0f));
 		m_Plane->SetTexture(m_Window->GetRenderer(), "./content/textures/wood.png");
 		m_Sphere->SetTexture(m_Window->GetRenderer(), "./content/textures/brickwall.jpg");
 
+		/** Init Model */
+		m_AssimpTestModel = std::make_unique<Model>(m_Window->GetRenderer(),
+			"./content/models/nanosuit/nanosuit.obj");
+		m_AssimpTestModel->SetPosition(XMFLOAT3(0.0f, -3.0f, 0.0f));
+		m_AssimpTestModel->SetRotation(XMFLOAT3(0.0f, 160.0f, 0.0f));
+		m_AssimpTestModel->SetScale(XMFLOAT3(0.4f, 0.4f, 0.4f));
+
 		/** Init Light */
 		m_PointLight = std::make_unique<PointLight>(m_Window->GetRenderer(), m_Camera->GetPosition());
-		m_PointLight->SetPosition(XMFLOAT3(0.0f, 1.0f, -4.0f));
+		m_PointLight->SetPosition(XMFLOAT3(-2.0f, 2.2f, -4.0f));
 
+
+
+		/**********************/
+		/** Projection Matrix */
+		/**********************/
 		m_Window->GetRenderer().SetProjection(DirectX::XMMatrixPerspectiveFovLH(45.0f, 
-			(float)m_Window->GetWidth()/(float)m_Window->GetHeight(), 0.5f, 40.0f));
+			(float)m_Window->GetWidth()/(float)m_Window->GetHeight(), 0.5f, 1000.0f));
 	}
 
 	virtual ~ProvingGround()
@@ -81,6 +95,8 @@ public:
 		m_Sphere->Draw(m_Window->GetRenderer());
 		m_Box->Draw(m_Window->GetRenderer());
 
+		m_AssimpTestModel->Draw(m_Window->GetRenderer());
+
 
 		/****************/
 		/** ImGui Layer */
@@ -100,9 +116,10 @@ public:
 
 protected:
 	// Entity
-	std::unique_ptr<D3D11DrawableGeometry_PhongPosNormalTex> m_Sphere{};
-	std::unique_ptr<D3D11DrawableGeometry_PhongPosNormalTex> m_Plane{};
-	std::unique_ptr<D3D11DrawableGeometry_PhongPosNormalTex> m_Box{};
+	std::unique_ptr<Model> m_AssimpTestModel{};
+	std::unique_ptr<D3D11DrawableGeometry_BlinnPhongPosNorTex> m_Sphere{};
+	std::unique_ptr<D3D11DrawableGeometry_BlinnPhongPosNorTex> m_Plane{};
+	std::unique_ptr<D3D11DrawableGeometry_BlinnPhongPosNorTex> m_Box{};
 	std::unique_ptr<PointLight> m_PointLight{};
 };
 

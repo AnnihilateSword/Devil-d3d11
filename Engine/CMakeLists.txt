@@ -10,7 +10,13 @@ endif()
 # recursively find all.cpp and.h in the src directory.
 file(GLOB_RECURSE EngineSrc src/*.cpp src/*.h)
 
+# Assimp Begin --------------------------------------
+# 1. Collect all Assimp files first
+file(GLOB_RECURSE ExcludedFiles src/Vendor/Assimp/*.cpp src/Vendor/Assimp/*.h)
 
+# 2. Removes excluded files from the result
+list(REMOVE_ITEM EngineSrc ${ExcludedFiles})
+# Assimp End --------------------------------------
 
 # **********************************************
 # Include Shader Files && Set Compile Properties
@@ -90,8 +96,20 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 	# ...
 )
 
-# add subdirectory.
-# add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/)
 
-# If it is a project, the project is referenced first, if not, the library is linked.
-# target_link_libraries(${PROJECT_NAME} ...)
+# *****************
+# add subdirectory.
+# *****************
+# Assimp
+set(BUILD_SHARED_LIBS OFF)
+set(ASSIMP_BUILD_ZLIB ON)
+set(USE_STATIC_CRT ON)
+set(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
+set(ASSIMP_BUILD_TESTS OFF)
+set(ASSIMP_INSTALL OFF)
+set(ASSIMP_INJECT_DEBUG_POSTFIX OFF)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/src/Vendor/Assimp)
+
+# If it is a project the project is referenced first, if not, the library is linked.
+# Notice that assimp is lowercase here!!!
+target_link_libraries(${PROJECT_NAME} assimp)

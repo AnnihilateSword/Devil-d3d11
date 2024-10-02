@@ -62,6 +62,7 @@ if (WIN32)
     if (EXISTS ${CMAKE_SOURCE_DIR}/Engine/shaders)
         # Engine.lib and shaders/
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+			#**************************************** Engine.lib
             # Command1
             COMMAND ${CMAKE_COMMAND} -E copy 
             $<IF:$<CONFIG:Debug>,${CMAKE_SOURCE_DIR}/Engine/Debug/Engine.lib,${CMAKE_SOURCE_DIR}/Engine/Release/Engine.lib>
@@ -69,6 +70,15 @@ if (WIN32)
 
             # Log1: Message for Engine.lib
             COMMAND ${CMAKE_COMMAND} -E echo "----[Devil Engine CMake Log]----: Copying **( Engine.lib )** based on build configuration!!!"
+			
+			#**************************************** Assimp.lib
+            # Command1
+            COMMAND ${CMAKE_COMMAND} -E copy 
+            $<IF:$<CONFIG:Debug>,${CMAKE_SOURCE_DIR}/Engine/src/Vendor/Assimp/lib/Debug/assimp-vc143-mt.lib,${CMAKE_SOURCE_DIR}/Engine/src/Vendor/Assimp/lib/Release/assimp-vc143-mt.lib>
+            $<IF:$<CONFIG:Debug>,${CMAKE_CURRENT_BINARY_DIR}/Debug/assimp-vc143-mt.lib,${CMAKE_CURRENT_BINARY_DIR}/Release/assimp-vc143-mt.lib>
+
+            # Log1: Message for Engine.lib
+            COMMAND ${CMAKE_COMMAND} -E echo "----[Devil Engine CMake Log]----: Copying **( assimp-vc143-mt.lib )** based on build configuration!!!"
 
             #**************************************** shaders/
             # Command2

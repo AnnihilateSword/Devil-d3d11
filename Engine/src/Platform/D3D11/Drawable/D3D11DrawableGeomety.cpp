@@ -7,10 +7,10 @@ using namespace DirectX;
 
 namespace Devil
 {
-	/********************************************/
-	/** D3D11DrawableGeometry_PhongPosNormalTex */
-	/********************************************/
-	D3D11DrawableGeometry_PhongPosNormalTex::D3D11DrawableGeometry_PhongPosNormalTex(D3D11Renderer& renderer, DrawableGeometryType drawableGeometryType,
+	/**********************************************/
+	/** D3D11DrawableGeometry_BlinnPhongPosNorTex */
+	/**********************************************/
+	D3D11DrawableGeometry_BlinnPhongPosNorTex::D3D11DrawableGeometry_BlinnPhongPosNorTex(D3D11Renderer& renderer, DrawableGeometryType drawableGeometryType,
 		DirectX::XMFLOAT3& position, DirectX::XMFLOAT3& rotation, DirectX::XMFLOAT3& scale, std::string textureFilename)
 		: DObject(position, rotation, scale),
 		m_MaterialConst{ { 1.0f, 1.0f, 1.0f }, 0.8f, 64.0f },
@@ -36,11 +36,11 @@ namespace Devil
 
 		AddBind(std::make_unique<D3D11VertexBuffer>(renderer, m_MeshData.vertexVec));
 
-		auto pvs = std::make_unique<D3D11VertexShader>(renderer, L"./shaders/hlsl/PhongPosNormalTex_VS.cso");
+		auto pvs = std::make_unique<D3D11VertexShader>(renderer, L"./shaders/hlsl/BlinnPhongPosNorTex_VS.cso");
 		auto pvsbc = pvs->GetBytecodeBlob();
 		AddBind(std::move(pvs));
 
-		AddBind(std::make_unique<D3D11PixelShader>(renderer, L"./shaders/hlsl/PhongPosNormalTex_PS.cso"));
+		AddBind(std::make_unique<D3D11PixelShader>(renderer, L"./shaders/hlsl/BlinnPhongPosNorTex_PS.cso"));
 
 		// add bind texture
 		AddBind(std::make_unique<D3D11Texture>(renderer, textureFilename.c_str()));
@@ -79,11 +79,11 @@ namespace Devil
 		SetMaterialConst(renderer, m_MaterialConst);
 	}
 
-	void D3D11DrawableGeometry_PhongPosNormalTex::Update(float deltaTime) noexcept
+	void D3D11DrawableGeometry_BlinnPhongPosNorTex::Update(float deltaTime) noexcept
 	{
 	}
 
-	void D3D11DrawableGeometry_PhongPosNormalTex::SetMaterialConst(D3D11Renderer& renderer, MaterialConst& materialConst) noexcept
+	void D3D11DrawableGeometry_BlinnPhongPosNorTex::SetMaterialConst(D3D11Renderer& renderer, MaterialConst& materialConst) noexcept
 	{
 		/******************************/
 		/** Update PS Constant Buffer */
@@ -93,12 +93,12 @@ namespace Devil
 		AddBind(std::make_unique<D3D11PSConstantBuffer<MaterialConst>>(renderer, m_MaterialConst, 1u));
 	}
 
-	void D3D11DrawableGeometry_PhongPosNormalTex::SetTexture(D3D11Renderer& renderer, std::string textureFilename)
+	void D3D11DrawableGeometry_BlinnPhongPosNorTex::SetTexture(D3D11Renderer& renderer, const std::string& textureFilename)
 	{
 		AddBind(std::make_unique<D3D11Texture>(renderer, textureFilename.c_str()));
 	}
 
-	DirectX::XMMATRIX D3D11DrawableGeometry_PhongPosNormalTex::GetTransformXM() const noexcept
+	DirectX::XMMATRIX D3D11DrawableGeometry_BlinnPhongPosNorTex::GetTransformXM() const noexcept
 	{
 		return XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&m_Rotation)) *
 			XMMatrixScalingFromVector(XMLoadFloat3(&m_Scale)) *

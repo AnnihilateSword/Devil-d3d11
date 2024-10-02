@@ -48,3 +48,60 @@ alignas(16)
 			DirectX::XMFLOAT3 pos;
 			float padding;
 		};
+		
+
+/***************/
+/** 使用第三方库 */
+/***************/
+1. ================================
+Assimp
+// 这里直接写下正确操作
+1. clone 或者下载 Assimp 源码，我这里放在 Engine/src/Vendor/Assimp
+	// 这里我改了名字 -> Assimp
+2. 在 Engine/ CMakeLists.txt 中添加：( 注意link的 assimp 要小写！！！)
+
+	# *****************
+	# add subdirectory.
+	# *****************
+	# Assimp
+	set(BUILD_SHARED_LIBS OFF)
+	set(ASSIMP_BUILD_ZLIB ON)
+	set(USE_STATIC_CRT ON)  # 这个很重要，看你是否是运行时静态
+	set(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
+	set(ASSIMP_BUILD_TESTS OFF)
+	set(ASSIMP_INSTALL OFF)
+	set(ASSIMP_INJECT_DEBUG_POSTFIX OFF)
+	add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/src/Vendor/Assimp)
+
+	# If it is a project the project is referenced first, if not, the library is linked.
+	# Notice that assimp is lowercase here!!!
+	target_link_libraries(${PROJECT_NAME} assimp)
+	
+3. 下载下来的 Assimp 太大了，删除一些不用的
+	
+	(1) Engine/src/Vendor/Assimp/test/ 中的 models/ 和 models-nonbsd/
+	
+4. 我这里因为写法问题，需要额外做一些剔除操作（可参考），Assimp Begin 后面是我添加的
+	// Engine/CMakeLists.txt
+	
+	# recursively find all.cpp and.h in the src directory.
+	file(GLOB_RECURSE EngineSrc src/*.cpp src/*.h)
+
+	# Assimp Begin --------------------------------------
+	# 1. Collect all Assimp files first
+	file(GLOB_RECURSE ExcludedFiles src/Vendor/Assimp/*.cpp src/Vendor/Assimp/*.h)
+
+	# 2. Removes excluded files from the result
+	list(REMOVE_ITEM EngineSrc ${ExcludedFiles})
+	# Assimp End --------------------------------------
+	
+5. 这是在 ProvingGround 也就是 "试验场"，就是我生成应用程序使用的 Project，需要拷贝一下 assimp-vc143-mt.lib
+
+	#**************************************** Assimp.lib
+	# Command1
+	COMMAND ${CMAKE_COMMAND} -E copy 
+	$<IF:$<CONFIG:Debug>,${CMAKE_SOURCE_DIR}/Engine/src/Vendor/Assimp/lib/Debug/assimp-vc143-mt.lib,${CMAKE_SOURCE_DIR}/Engine/src/Vendor/Assimp/lib/Release/assimp-vc143-mt.lib>
+	$<IF:$<CONFIG:Debug>,${CMAKE_CURRENT_BINARY_DIR}/Debug/assimp-vc143-mt.lib,${CMAKE_CURRENT_BINARY_DIR}/Release/assimp-vc143-mt.lib>
+
+	# Log1: Message for Engine.lib
+	COMMAND ${CMAKE_COMMAND} -E echo "----[Devil Engine CMake Log]----: Copying **( Engine.lib )** based on build configuration!!!"

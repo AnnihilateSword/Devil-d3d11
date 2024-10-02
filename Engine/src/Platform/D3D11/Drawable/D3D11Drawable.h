@@ -22,7 +22,7 @@ namespace Devil
 
 	public:
 		void Draw(D3D11Renderer& renderer) const noexcept;
-		virtual void Update(float deltaTime) noexcept = 0;
+		virtual void Update(float deltaTime) noexcept {}
 		virtual DirectX::XMMATRIX GetTransformXM() const noexcept = 0;
 
 	public:

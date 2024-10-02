@@ -80,7 +80,12 @@ namespace Devil
 			m_Window->GetRenderer().SetClientWidth(e.GetWidth());
 			m_Window->GetRenderer().SetClientHeight(e.GetHeight());
 
-			m_Window->GetRenderer().SetProjection(DirectX::XMMatrixPerspectiveFovLH(45.0f, (float)m_Window->GetWidth() / (float)m_Window->GetHeight(), 0.5f, 40.0f));
+
+			/**********************/
+			/** Projection Matrix */
+			/**********************/
+			m_Window->GetRenderer().SetProjection(DirectX::XMMatrixPerspectiveFovLH(45.0f, 
+				(float)m_Window->GetWidth() / (float)m_Window->GetHeight(), 0.5f, 1000.0f));
 
 			m_Window->GetRenderer().OnResize();
 		}

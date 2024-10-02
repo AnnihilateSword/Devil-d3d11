@@ -5,7 +5,8 @@
 
 namespace Devil
 {
-    D3D11Texture::D3D11Texture(D3D11Renderer& renderer, const std::string filename)
+    D3D11Texture::D3D11Texture(D3D11Renderer& renderer, const std::string filename, unsigned int slot)
+        : m_Slot{ slot }
     {
         // load texture data from file. ( stb_image )
         int imageWidth{};
@@ -48,6 +49,6 @@ namespace Devil
 
     void D3D11Texture::Bind(D3D11Renderer& renderer) noexcept
     {
-        GetDeviceContext(renderer)->PSSetShaderResources(0u, 1u, m_TextureView.GetAddressOf());
+        GetDeviceContext(renderer)->PSSetShaderResources(m_Slot, 1u, m_TextureView.GetAddressOf());
     }
 }
