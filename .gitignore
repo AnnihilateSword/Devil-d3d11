@@ -10,5 +10,5 @@ Release
 *.user
 *.sln
 CMakeCache.txt
-*.cmake
+cmake_install.cmake
 *.cso
