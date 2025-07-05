@@ -6,3 +6,5 @@ REM This is usually based on the number of CPU cores in your system.
 
 call cmake --build . --parallel --config Debug
 PAUSE
+
+阿斯顿
