@@ -10,7 +10,7 @@ endif()
 # recursively find all.cpp and.h in the src directory.
 file(GLOB_RECURSE EngineSrc src/*.cpp src/*.h)
 
-# Assimp Begin --------------------------------------
+# Assimp Begin --------------------------------------asdas 
 # 1. Collect all Assimp files first
 file(GLOB_RECURSE ExcludedFiles src/Vendor/Assimp/*.cpp src/Vendor/Assimp/*.h)
 
@@ -18,23 +18,7 @@ file(GLOB_RECURSE ExcludedFiles src/Vendor/Assimp/*.cpp src/Vendor/Assimp/*.h)
 list(REMOVE_ITEM EngineSrc ${ExcludedFiles})
 # Assimp End --------------------------------------
 
-# **********************************************
-# Include Shader Files && Set Compile Properties
-# **********************************************
-file(GLOB HLSL_FILES ${CMAKE_CURRENT_LIST_DIR}/shaders/hlsl/*.hlsl ${CMAKE_CURRENT_LIST_DIR}/shaders/hlsl/*.hlsl)
 
-foreach(HLSL_FILE ${HLSL_FILES})
-
-    get_filename_component(HLSL_FDIR ${HLSL_FILE} DIRECTORY)
-    get_filename_component(HLSL_FBASENAME_WE ${HLSL_FILE} NAME_WE)
-    string(CONCAT HLSL_FNAME_WE ${HLSL_FDIR} / ${HLSL_FBASENAME_WE})
-
-    string(LENGTH ${HLSL_FBASENAME_WE} LEN_FNAME_WE)
-    math(EXPR LEN_FNAME_WE "${LEN_FNAME_WE}-2")
-    string(SUBSTRING ${HLSL_FBASENAME_WE} ${LEN_FNAME_WE} 2 ENTRY_POINT)
-    string(TOLOWER ${ENTRY_POINT} SHADER_TYPE)
-
-    if ("${SHADER_TYPE}" STREQUAL "vs") 
         set(SHADER_TYPE "Vertex")
     elseif("${SHADER_TYPE}" STREQUAL "hs") 
         set(SHADER_TYPE "Hull")
